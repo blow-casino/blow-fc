@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BLOW Casino – FC店舗情報登録</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8cc7a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --dark-bg: #0a0a0c;
+    --dark-card: #111116;
+    --dark-border: #1e1e26;
+    --dark-input: #0d0d12;
+    --text-primary: #e8e4d8;
+    --text-secondary: #7a7668;
+    --text-muted: #3a3830;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 100% 100%, rgba(139,26,26,0.06) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── エラー画面 ── */
+  #error-screen {
+    display: none; position: fixed; inset: 0;
+    align-items: center; justify-content: center;
+    z-index: 200; background: var(--dark-bg);
+  }
+  #error-screen.show { display: flex; }
+  .error-box {
+    width: min(400px, 90vw); padding: 48px 36px;
+    background: var(--dark-card); border: 1px solid #3a1a1a;
+    text-align: center; animation: fadeInUp 0.5s ease both;
+  }
+  .error-box .error-icon { font-size: 2rem; margin-bottom: 16px; color: #8b2222; }
+  .error-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; margin-bottom: 12px; }
+  .error-box p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.8; }
+
+  /* ── メインフォーム ── */
+  #form-screen {
+    display: none; position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 48px 20px 100px;
+    animation: fadeInUp 0.6s ease both;
+  }
+  #form-screen.show { display: block; }
+
+  .page-header {
+    text-align: center; margin-bottom: 48px;
+    padding-bottom: 28px; border-bottom: 1px solid var(--dark-border);
+    position: relative;
+  }
+  .page-header::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 30%; right: 30%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .store-badge {
+    display: inline-block; font-size: 0.62rem;
+    letter-spacing: 0.3em; color: var(--gold);
+    border: 1px solid var(--gold-dim); padding: 4px 14px;
+    margin-bottom: 14px; text-transform: uppercase;
+  }
+  .page-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    font-weight: 300; letter-spacing: 0.1em;
+  }
+  .page-header p {
+    margin-top: 10px; font-size: 0.78rem;
+    color: var(--text-secondary); line-height: 1.9; letter-spacing: 0.04em;
+  }
+
+  /* 進捗 */
+  .progress-wrap { margin-bottom: 40px; }
+  .progress-bar { display: flex; gap: 4px; margin-bottom: 10px; }
+  .progress-step { flex: 1; height: 2px; background: var(--dark-border); transition: background 0.4s; }
+  .progress-step.active { background: var(--gold); }
+  .progress-labels { display: flex; justify-content: space-between; }
+  .progress-labels span {
+    font-size: 0.58rem; letter-spacing: 0.1em;
+    color: var(--text-muted); text-transform: uppercase; transition: color 0.3s;
+  }
+  .progress-labels span.active { color: var(--gold); }
+
+  /* セクション */
+  .form-section { display: none; animation: fadeInUp 0.35s ease both; }
+  .form-section.active { display: block; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--text-muted); line-height: 1; min-width: 32px; }
+  .section-title { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+  .section-divider { flex: 1; height: 1px; background: var(--dark-border); }
+
+  /* フォームグリッド */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; }
+  .field > label:first-child {
+    font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-secondary); margin-bottom: 7px;
+  }
+  .req { color: var(--gold); margin-left: 3px; }
+  .opt { color: var(--text-muted); font-size: 0.58rem; margin-left: 5px; letter-spacing: 0.04em; text-transform: none; }
+
+  .field input, .field select, .field textarea {
+    padding: 13px 14px;
+    background: var(--dark-input); border: 1px solid var(--dark-border);
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px; font-weight: 300; outline: none; border-radius: 0;
+    transition: border-color 0.25s, background 0.25s;
+    appearance: none; -webkit-appearance: none; width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--gold); background: #0f0f15;
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-muted); font-size: 0.82rem; }
+  .field textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
+
+  /* 未定チェック */
+  .tbd-wrap { display: inline-flex; align-items: center; margin-top: 8px; cursor: pointer; user-select: none; width: fit-content; }
+  .tbd-wrap input[type="checkbox"] { display: none; }
+  .tbd-box {
+    width: 18px; height: 18px; border: 1px solid var(--dark-border);
+    background: var(--dark-input); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: border-color 0.25s, background 0.25s;
+  }
+  .tbd-box::after {
+    content: ''; display: block; width: 5px; height: 9px;
+    border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold);
+    transform: rotate(45deg) translate(-1px,-1px); opacity: 0; transition: opacity 0.2s;
+  }
+  .tbd-wrap input:checked + .tbd-box { border-color: var(--gold); background: rgba(201,168,76,0.12); }
+  .tbd-wrap input:checked + .tbd-box::after { opacity: 1; }
+  .tbd-text {
+    font-size: 0.66rem; color: var(--text-muted); letter-spacing: 0.08em;
+    padding: 0 10px 0 8px; line-height: 18px;
+    border: 1px solid var(--dark-border); border-left: none;
+    background: var(--dark-input);
+    transition: color 0.25s, border-color 0.25s, background 0.25s; white-space: nowrap;
+  }
+  .tbd-wrap input:checked ~ .tbd-text { color: var(--gold); border-color: var(--gold); background: rgba(201,168,76,0.08); }
+  .field.is-tbd input:not([type="checkbox"]), .field.is-tbd select, .field.is-tbd textarea {
+    opacity: 0.25; pointer-events: none;
+  }
+
+  /* ナビ */
+  .form-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--dark-border); gap: 12px; }
+  .btn-back {
+    padding: 14px 24px; background: transparent; border: 1px solid var(--dark-border);
+    color: var(--text-secondary); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em; cursor: pointer;
+    transition: border-color 0.3s, color 0.3s; min-width: 90px; touch-action: manipulation;
+  }
+  .btn-back:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+  .btn-back:disabled { opacity: 0.2; cursor: not-allowed; }
+  .btn-next {
+    padding: 14px 32px; background: transparent; border: 1px solid var(--gold);
+    color: var(--gold); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.22em; cursor: pointer;
+    position: relative; overflow: hidden; transition: color 0.3s;
+    flex: 1; max-width: 260px; touch-action: manipulation;
+  }
+  .btn-next::before {
+    content: ''; position: absolute; inset: 0; background: var(--gold);
+    transform: translateX(-101%); transition: transform 0.3s; z-index: -1;
+  }
+  .btn-next:hover { color: var(--dark-bg); }
+  .btn-next:hover::before { transform: translateX(0); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* 確認テーブル */
+  .confirm-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+  .confirm-table tr { border-bottom: 1px solid var(--dark-border); }
+  .confirm-table td:first-child { padding: 10px 12px; width: 38%; font-size: 0.64rem; letter-spacing: 0.1em; color: var(--text-secondary); text-transform: uppercase; vertical-align: top; }
+  .confirm-table td:last-child { padding: 10px 12px; font-size: 0.86rem; color: var(--text-primary); word-break: break-all; }
+
+  /* 完了画面 */
+  #complete-screen { display: none; text-align: center; padding: 80px 20px; animation: fadeInUp 0.6s ease both; position: relative; z-index: 1; }
+  #complete-screen.show { display: block; }
+  .complete-icon { width: 68px; height: 68px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 1.6rem; color: var(--gold); }
+  #complete-screen h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; letter-spacing: 0.14em; margin-bottom: 14px; }
+  #complete-screen p { color: var(--text-secondary); font-size: 0.8rem; line-height: 2; letter-spacing: 0.04em; }
+  .btn-reopen { margin-top: 28px; display: inline-block; padding: 13px 28px; border: 1px solid var(--dark-border); color: var(--text-secondary); font-size: 0.68rem; letter-spacing: 0.18em; cursor: pointer; background: transparent; font-family: 'Noto Sans JP', sans-serif; transition: border-color 0.3s, color 0.3s; touch-action: manipulation; }
+  .btn-reopen:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* 送信中 */
+  #sending-overlay { display: none; position: fixed; inset: 0; background: rgba(10,10,12,0.85); z-index: 300; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  #sending-overlay.show { display: flex; }
+  .spinner { width: 40px; height: 40px; border: 1px solid var(--dark-border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  #sending-overlay p { font-size: 0.72rem; letter-spacing: 0.2em; color: var(--text-secondary); text-transform: uppercase; }
+
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .full { grid-column: 1; }
+    #form-screen { padding: 32px 16px 80px; }
+    .btn-next { max-width: none; }
+    .confirm-table td:first-child { width: 35%; font-size: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- エラー画面 -->
+<div id="error-screen">
+  <div class="error-box">
+    <div class="error-icon">⚠</div>
+    <h2>URLが正しくありません</h2>
+    <p>このフォームは本部から送付された<br>専用URLからアクセスしてください。<br><br>お心当たりのない方はBLOW本部まで<br>お問い合わせください。</p>
+  </div>
+</div>
+
+<!-- 送信中オーバーレイ -->
+<div id="sending-overlay">
+  <div class="spinner"></div>
+  <p>送信中...</p>
+</div>
+
+<!-- メインフォーム -->
+<div id="form-screen">
+  <div class="page-header">
+    <span class="store-badge" id="store-badge">—</span>
+    <h1>店舗情報登録フォーム</h1>
+    <p>
+      各項目を入力して送信してください。<br>
+      未定の項目は「未定・後日入力」にチェックしてスキップ可能です。<br>
+      後から同じURLで再アクセスすれば修正・追記できます。
+    </p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar">
+      <div class="progress-step active"></div>
+      <div class="progress-step"></div>
+      <div class="progress-step"></div>
+      <div class="progress-step"></div>
+    </div>
+    <div class="progress-labels">
+      <span class="active" id="lbl-0">会社情報</span>
+      <span id="lbl-1">代表者</span>
+      <span id="lbl-2">店舗情報</span>
+      <span id="lbl-3">確認・送信</span>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="form-section active" id="step-0">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">会社・法人情報</span>
+      <span class="section-divider"></span>
+    </div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>会社名 / 法人名 <span class="req">*</span></label>
+        <input type="text" id="company-name" placeholder="例：株式会社サンプル" autocomplete="organization">
+      </div>
+      <div class="field full">
+        <label>屋号 / ブランド名 <span class="opt">任意</span></label>
+        <input type="text" id="brand-name" placeholder="例：BLOW CASINO OSAKA">
+      </div>
+      <div class="field full">
+        <label>本社・登記住所 <span class="req">*</span></label>
+        <input type="text" id="hq-address" placeholder="例：大阪府大阪市中央区○○ 1-2-3" autocomplete="street-address">
+      </div>
+      <div class="field">
+        <label>代表電話番号 <span class="req">*</span></label>
+        <input type="tel" id="tel-main" placeholder="06-0000-0000" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label>FAX番号 <span class="opt">任意</span></label>
+        <input type="tel" id="fax" placeholder="06-0000-0000">
+      </div>
+      <div class="field full">
+        <label>会社メールアドレス <span class="req">*</span></label>
+        <input type="email" id="email-company" placeholder="info@example.co.jp" autocomplete="email">
+      </div>
+    </div>
+    <div class="form-nav">
+      <button class="btn-back" disabled>← 戻る</button>
+      <button class="btn-next" onclick="nextStep(0)">次へ &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="form-section" id="step-1">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">代表者・担当者情報</span>
+      <span class="section-divider"></span>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>代表者氏名 <span class="req">*</span></label>
+        <input type="text" id="rep-name" placeholder="山田 太郎" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>フリガナ <span class="req">*</span></label>
+        <input type="text" id="rep-kana" placeholder="ヤマダ タロウ">
+      </div>
+      <div class="field">
+        <label>代表者直通番号 <span class="opt">任意</span></label>
+        <input type="tel" id="rep-tel" placeholder="090-0000-0000">
+      </div>
+      <div class="field">
+        <label>代表者メール <span class="opt">任意</span></label>
+        <input type="email" id="rep-email" placeholder="taro@example.co.jp">
+      </div>
+      <div class="field" id="field-contact">
+        <label>FC担当者氏名 <span class="opt">任意</span></label>
+        <input type="text" id="contact-name" placeholder="鈴木 花子">
+        <label class="tbd-wrap" for="tbd-contact">
+          <input type="checkbox" id="tbd-contact" onchange="toggleTbd('tbd-contact','field-contact')">
+          <span class="tbd-box"></span>
+          <span class="tbd-text">未定・後日入力</span>
+        </label>
+      </div>
+      <div class="field">
+        <label>FC担当者連絡先 <span class="opt">任意</span></label>
+        <input type="tel" id="contact-tel" placeholder="090-0000-0000">
+      </div>
+    </div>
+    <div class="form-nav">
+      <button class="btn-back" onclick="prevStep(1)">← 戻る</button>
+      <button class="btn-next" onclick="nextStep(1)">次へ &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="form-section" id="step-2">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">店舗情報</span>
+      <span class="section-divider"></span>
+    </div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>店舗所在地 <span class="req">*</span></label>
+        <input type="text" id="store-address" placeholder="例：大阪府大阪市北区○○ 2-3-4 ××ビル 3F">
+      </div>
+      <div class="field" id="field-seats">
+        <label>総席数 <span class="opt">任意</span></label>
+        <input type="number" id="seats" placeholder="例：40" inputmode="numeric">
+        <label class="tbd-wrap" for="tbd-seats">
+          <input type="checkbox" id="tbd-seats" onchange="toggleTbd('tbd-seats','field-seats')">
+          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
+        </label>
+      </div>
+      <div class="field" id="field-area">
+        <label>店舗面積（㎡） <span class="opt">任意</span></label>
+        <input type="number" id="area" placeholder="例：120" inputmode="numeric">
+        <label class="tbd-wrap" for="tbd-area">
+          <input type="checkbox" id="tbd-area" onchange="toggleTbd('tbd-area','field-area')">
+          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
+        </label>
+      </div>
+      <div class="field" id="field-hours">
+        <label>営業開始時間 <span class="opt">任意</span></label>
+        <input type="time" id="open-time" value="18:00">
+        <label class="tbd-wrap" for="tbd-hours">
+          <input type="checkbox" id="tbd-hours" onchange="toggleTbd('tbd-hours','field-hours','field-closetime')">
+          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
+        </label>
+      </div>
+      <div class="field" id="field-closetime">
+        <label>営業終了時間 <span class="opt">任意</span></label>
+        <input type="time" id="close-time" value="03:00">
+      </div>
+      <div class="field full" id="field-closed">
+        <label>定休日 <span class="opt">任意</span></label>
+        <input type="text" id="closed-days" placeholder="例：不定休 / 毎週月曜日">
+        <label class="tbd-wrap" for="tbd-closed">
+          <input type="checkbox" id="tbd-closed" onchange="toggleTbd('tbd-closed','field-closed')">
+          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
+        </label>
+      </div>
+      <div class="field full" id="field-staff">
+        <label>スタッフ数（概算） <span class="opt">任意</span></label>
+        <input type="text" id="staff-count" placeholder="例：社員2名・アルバイト8名">
+        <label class="tbd-wrap" for="tbd-staff">
+          <input type="checkbox" id="tbd-staff" onchange="toggleTbd('tbd-staff','field-staff')">
+          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
+        </label>
+      </div>
+    </div>
+    <div class="form-nav">
+      <button class="btn-back" onclick="prevStep(2)">← 戻る</button>
+      <button class="btn-next" onclick="nextStep(2)">次へ &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="form-section" id="step-3">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">確認・送信</span>
+      <span class="section-divider"></span>
+    </div>
+    <p style="font-size:0.76rem;color:var(--text-secondary);margin-bottom:20px;line-height:1.8;">内容をご確認のうえ、送信してください。</p>
+    <table class="confirm-table" id="confirm-table"></table>
+    <div class="field full" style="margin-bottom:8px;">
+      <label>備考・連絡事項 <span class="opt">任意</span></label>
+      <textarea id="remarks" placeholder="その他、本部へ伝えておきたいことがあればご記入ください。"></textarea>
+    </div>
+    <div class="form-nav">
+      <button class="btn-back" onclick="prevStep(3)">← 戻る</button>
+      <button class="btn-next" id="btn-submit" onclick="submitForm()">送信する →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 完了画面 -->
+<div id="complete-screen">
+  <div class="complete-icon">✓</div>
+  <h2>送信が完了しました</h2>
+  <p>
+    ご入力ありがとうございます。<br>
+    本部へ通知が送信されました。<br><br>
+    未入力の項目がある場合は、<br>同じURLから再アクセスして追記・修正できます。
+  </p>
+  <button class="btn-reopen" onclick="location.reload()">追記・修正する</button>
+</div>
+
+<script>
+// ══════════════════════
+// 設定
+// ══════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwyqmkLFfiTwgqEZkeJjfQe4DTSaO-QeXgfjUN5424_TQTpgIEx42DnevKisBPUbVeowg/exec';
+
+// ══════════════════════
+// 初期化
+// ══════════════════════
+const params    = new URLSearchParams(location.search);
+const storeCode = params.get('store') || '';
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!storeCode) {
+    document.getElementById('error-screen').classList.add('show');
+    return;
+  }
+  document.getElementById('store-badge').textContent = 'Store: ' + storeCode;
+  document.getElementById('form-screen').classList.add('show');
+  restoreData(storeCode);
+});
+
+// ══════════════════════
+// ステップ制御
+// ══════════════════════
+let currentStep = 0;
+const TOTAL = 4;
+
+function nextStep(from) {
+  if (from >= TOTAL - 1) return;
+  document.getElementById('step-' + from).classList.remove('active');
+  currentStep = from + 1;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  updateProgress();
+  if (currentStep === 3) buildConfirmTable();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function prevStep(from) {
+  if (from <= 0) return;
+  document.getElementById('step-' + from).classList.remove('active');
+  currentStep = from - 1;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateProgress() {
+  document.querySelectorAll('.progress-step').forEach((el, i) => el.classList.toggle('active', i <= currentStep));
+  ['lbl-0','lbl-1','lbl-2','lbl-3'].forEach((id, i) => document.getElementById(id).classList.toggle('active', i === currentStep));
+}
+
+// ══════════════════════
+// 未定チェック
+// ══════════════════════
+function toggleTbd(cbId, ...fieldIds) {
+  const checked = document.getElementById(cbId).checked;
+  fieldIds.forEach(fid => {
+    const el = document.getElementById(fid);
+    if (!el) return;
+    el.classList.toggle('is-tbd', checked);
+    el.querySelectorAll('input:not([type="checkbox"]), select, textarea').forEach(inp => {
+      if (checked) { inp._savedVal = inp.value; inp.value = ''; }
+      else if (inp._savedVal !== undefined) inp.value = inp._savedVal;
+    });
+  });
+}
+
+// ══════════════════════
+// 確認テーブル
+// ══════════════════════
+function buildConfirmTable() {
+  const rows = [
+    ['会社名 / 法人名', v('company-name')],
+    ['屋号',           v('brand-name')],
+    ['本社住所',        v('hq-address')],
+    ['代表電話',        v('tel-main')],
+    ['FAX',            v('fax')],
+    ['会社メール',      v('email-company')],
+    ['代表者氏名',      [v('rep-name'), v('rep-kana')].filter(Boolean).join('　')],
+    ['代表者電話',      v('rep-tel')],
+    ['代表者メール',    v('rep-email')],
+    ['FC担当者',        tbdOr('tbd-contact', v('contact-name'))],
+    ['FC担当者電話',    v('contact-tel')],
+    ['店舗住所',        v('store-address')],
+    ['席数',            tbdOr('tbd-seats',  v('seats')  ? v('seats')  + ' 席' : '')],
+    ['面積',            tbdOr('tbd-area',   v('area')   ? v('area')   + ' ㎡' : '')],
+    ['営業時間',        tbdOr('tbd-hours',  v('open-time') && v('close-time') ? v('open-time') + ' ～ ' + v('close-time') : '')],
+    ['定休日',          tbdOr('tbd-closed', v('closed-days'))],
+    ['スタッフ数',      tbdOr('tbd-staff',  v('staff-count'))],
+  ];
+  document.getElementById('confirm-table').innerHTML =
+    rows.filter(([,val]) => val).map(([k, val]) =>
+      `<tr><td>${k}</td><td>${val}</td></tr>`
+    ).join('');
+}
+
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function tbdOr(cbId, val) {
+  return document.getElementById(cbId)?.checked
+    ? '<span style="color:var(--text-muted);font-size:0.78rem;">未定（後日入力）</span>'
+    : (val || '');
+}
+
+// ══════════════════════
+// データ収集
+// ══════════════════════
+function gatherData() {
+  const tbd = id => !!document.getElementById(id)?.checked;
+  return {
+    store: storeCode, timestamp: new Date().toISOString(),
+    companyName: v('company-name'), brandName: v('brand-name'),
+    hqAddress: v('hq-address'), telMain: v('tel-main'), fax: v('fax'),
+    emailCompany: v('email-company'), repName: v('rep-name'), repKana: v('rep-kana'),
+    repTel: v('rep-tel'), repEmail: v('rep-email'),
+    contactName: tbd('tbd-contact') ? '未定' : v('contact-name'),
+    contactTel: v('contact-tel'), storeAddress: v('store-address'),
+    seats:       tbd('tbd-seats')  ? '未定' : v('seats'),
+    area:        tbd('tbd-area')   ? '未定' : v('area'),
+    openTime:    tbd('tbd-hours')  ? '未定' : v('open-time'),
+    closeTime:   tbd('tbd-hours')  ? '未定' : v('close-time'),
+    closedDays:  tbd('tbd-closed') ? '未定' : v('closed-days'),
+    staffCount:  tbd('tbd-staff')  ? '未定' : v('staff-count'),
+    remarks: v('remarks'),
+  };
+}
+
+// ══════════════════════
+// 送信
+// ══════════════════════
+async function submitForm() {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  document.getElementById('sending-overlay').classList.add('show');
+  const data = gatherData();
+  try { localStorage.setItem('blow_fc_' + storeCode, JSON.stringify(data)); } catch(e) {}
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    document.getElementById('sending-overlay').classList.remove('show');
+    document.getElementById('form-screen').classList.remove('show');
+    document.getElementById('complete-screen').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(err) {
+    document.getElementById('sending-overlay').classList.remove('show');
+    btn.disabled = false;
+    alert('送信エラーが発生しました。\n通信環境を確認して再度お試しください。\n\n' + err.message);
+  }
+}
+
+// ══════════════════════
+// 過去データ復元
+// ══════════════════════
+function restoreData(code) {
+  try {
+    const saved = localStorage.getItem('blow_fc_' + code);
+    if (!saved) return;
+    const d = JSON.parse(saved);
+    const map = {
+      'company-name': d.companyName, 'brand-name': d.brandName,
+      'hq-address': d.hqAddress,     'tel-main': d.telMain,
+      'fax': d.fax,                   'email-company': d.emailCompany,
+      'rep-name': d.repName,          'rep-kana': d.repKana,
+      'rep-tel': d.repTel,            'rep-email': d.repEmail,
+      'contact-name':  d.contactName !== '未定' ? d.contactName  : '',
+      'contact-tel':   d.contactTel,
+      'store-address': d.storeAddress,
+      'seats':       d.seats       !== '未定' ? d.seats       : '',
+      'area':        d.area        !== '未定' ? d.area        : '',
+      'open-time':   d.openTime    !== '未定' ? d.openTime    : '',
+      'close-time':  d.closeTime   !== '未定' ? d.closeTime   : '',
+      'closed-days': d.closedDays  !== '未定' ? d.closedDays  : '',
+      'staff-count': d.staffCount  !== '未定' ? d.staffCount  : '',
+      'remarks': d.remarks,
+    };
+    Object.entries(map).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    });
+    // 未定チェック復元
+    [['tbd-contact',d.contactName],['tbd-seats',d.seats],['tbd-area',d.area],
+     ['tbd-hours',d.openTime],['tbd-closed',d.closedDays],['tbd-staff',d.staffCount]]
+    .forEach(([cbId, val]) => {
+      if (val === '未定') {
+        const cb = document.getElementById(cbId);
+        if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+      }
+    });
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
