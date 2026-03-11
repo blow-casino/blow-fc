@@ -98,7 +98,7 @@
   .progress-step.active { background: var(--gold); }
   .progress-labels { display: flex; justify-content: space-between; }
   .progress-labels span {
-    font-size: 0.58rem; letter-spacing: 0.1em;
+    font-size: 0.56rem; letter-spacing: 0.08em;
     color: var(--text-muted); text-transform: uppercase; transition: color 0.3s;
   }
   .progress-labels span.active { color: var(--gold); }
@@ -121,6 +121,7 @@
   }
   .req { color: var(--gold); margin-left: 3px; }
   .opt { color: var(--text-muted); font-size: 0.58rem; margin-left: 5px; letter-spacing: 0.04em; text-transform: none; }
+  .field-note { font-size: 0.66rem; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.04em; }
 
   .field input, .field select, .field textarea {
     padding: 13px 14px;
@@ -135,34 +136,76 @@
     border-color: var(--gold); background: #0f0f15;
   }
   .field input::placeholder, .field textarea::placeholder { color: var(--text-muted); font-size: 0.82rem; }
-  .field textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
+  .field textarea { resize: vertical; min-height: 120px; line-height: 1.7; }
 
-  /* 未定チェック */
-  .tbd-wrap { display: inline-flex; align-items: center; margin-top: 8px; cursor: pointer; user-select: none; width: fit-content; }
-  .tbd-wrap input[type="checkbox"] { display: none; }
-  .tbd-box {
-    width: 18px; height: 18px; border: 1px solid var(--dark-border);
-    background: var(--dark-input); display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: border-color 0.25s, background 0.25s;
+  /* 出店区分カード */
+  .branch-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .branch-card { position: relative; cursor: pointer; }
+  .branch-card input[type="radio"] { display: none; }
+  .branch-card-inner {
+    padding: 24px 20px; border: 1px solid var(--dark-border);
+    background: var(--dark-input); text-align: center;
+    transition: border-color 0.25s, background 0.25s;
   }
-  .tbd-box::after {
+  .branch-card input:checked + .branch-card-inner {
+    border-color: var(--gold); background: rgba(201,168,76,0.06);
+  }
+  .branch-card-inner .branch-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .branch-card-inner .branch-title { font-size: 0.78rem; letter-spacing: 0.1em; color: var(--text-primary); margin-bottom: 6px; }
+  .branch-card-inner .branch-desc { font-size: 0.64rem; color: var(--text-muted); line-height: 1.6; }
+  .branch-card input:checked + .branch-card-inner .branch-title { color: var(--gold); }
+
+  /* チェックボックスグループ */
+  .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .check-item { display: flex; align-items: center; cursor: pointer; user-select: none; }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-box {
+    width: 18px; height: 18px; border: 1px solid var(--dark-border);
+    background: var(--dark-input); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; transition: border-color 0.25s, background 0.25s;
+  }
+  .check-box::after {
     content: ''; display: block; width: 5px; height: 9px;
     border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold);
     transform: rotate(45deg) translate(-1px,-1px); opacity: 0; transition: opacity 0.2s;
   }
-  .tbd-wrap input:checked + .tbd-box { border-color: var(--gold); background: rgba(201,168,76,0.12); }
-  .tbd-wrap input:checked + .tbd-box::after { opacity: 1; }
-  .tbd-text {
-    font-size: 0.66rem; color: var(--text-muted); letter-spacing: 0.08em;
-    padding: 0 10px 0 8px; line-height: 18px;
-    border: 1px solid var(--dark-border); border-left: none;
-    background: var(--dark-input);
-    transition: color 0.25s, border-color 0.25s, background 0.25s; white-space: nowrap;
+  .check-item input:checked + .check-box { border-color: var(--gold); background: rgba(201,168,76,0.12); }
+  .check-item input:checked + .check-box::after { opacity: 1; }
+  .check-label { font-size: 0.8rem; color: var(--text-primary); padding-left: 10px; }
+  .check-other-input {
+    margin-top: 8px; padding: 10px 12px;
+    background: var(--dark-input); border: 1px solid var(--dark-border);
+    color: var(--text-primary); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px; font-weight: 300; outline: none; width: 100%;
+    transition: border-color 0.25s;
   }
-  .tbd-wrap input:checked ~ .tbd-text { color: var(--gold); border-color: var(--gold); background: rgba(201,168,76,0.08); }
-  .field.is-tbd input:not([type="checkbox"]), .field.is-tbd select, .field.is-tbd textarea {
-    opacity: 0.25; pointer-events: none;
+  .check-other-input:focus { border-color: var(--gold); }
+  .check-other-input::placeholder { color: var(--text-muted); font-size: 0.78rem; }
+
+  /* 画像アップロード */
+  .upload-area {
+    border: 1px dashed var(--dark-border); padding: 32px 20px;
+    text-align: center; cursor: pointer; transition: border-color 0.25s, background 0.25s;
+    background: var(--dark-input); position: relative;
   }
+  .upload-area:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .upload-area.has-file { border-color: var(--gold); border-style: solid; }
+  .upload-area input[type="file"] { display: none; }
+  .upload-icon { font-size: 1.8rem; margin-bottom: 10px; color: var(--text-muted); }
+  .upload-text { font-size: 0.74rem; color: var(--text-secondary); letter-spacing: 0.08em; }
+  .upload-sub { font-size: 0.62rem; color: var(--text-muted); margin-top: 6px; }
+  .upload-preview {
+    display: none; margin-top: 16px;
+    position: relative; width: fit-content; margin: 16px auto 0;
+  }
+  .upload-preview img { max-width: 200px; max-height: 150px; object-fit: cover; border: 1px solid var(--dark-border); }
+  .upload-preview .remove-btn {
+    position: absolute; top: -8px; right: -8px;
+    width: 20px; height: 20px; background: #8b2222;
+    border: none; color: #fff; cursor: pointer; font-size: 0.7rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .upload-filename { font-size: 0.7rem; color: var(--gold); margin-top: 8px; }
 
   /* ナビ */
   .form-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--dark-border); gap: 12px; }
@@ -190,10 +233,13 @@
   .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* 確認テーブル */
-  .confirm-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+  .confirm-section-title { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin: 20px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--dark-border); }
+  .confirm-section-title:first-child { margin-top: 0; }
+  .confirm-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
   .confirm-table tr { border-bottom: 1px solid var(--dark-border); }
   .confirm-table td:first-child { padding: 10px 12px; width: 38%; font-size: 0.64rem; letter-spacing: 0.1em; color: var(--text-secondary); text-transform: uppercase; vertical-align: top; }
   .confirm-table td:last-child { padding: 10px 12px; font-size: 0.86rem; color: var(--text-primary); word-break: break-all; }
+  .confirm-image { max-width: 120px; max-height: 90px; object-fit: cover; border: 1px solid var(--dark-border); margin-top: 4px; }
 
   /* 完了画面 */
   #complete-screen { display: none; text-align: center; padding: 80px 20px; animation: fadeInUp 0.6s ease both; position: relative; z-index: 1; }
@@ -210,12 +256,19 @@
   .spinner { width: 40px; height: 40px; border: 1px solid var(--dark-border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
   #sending-overlay p { font-size: 0.72rem; letter-spacing: 0.2em; color: var(--text-secondary); text-transform: uppercase; }
 
+  /* バリデーションエラー */
+  .field.error input, .field.error select, .field.error textarea { border-color: #8b2222; }
+  .error-msg { font-size: 0.62rem; color: #c44; margin-top: 5px; display: none; }
+  .field.error .error-msg { display: block; }
+
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   @media (max-width: 600px) {
     .form-grid { grid-template-columns: 1fr; }
     .form-grid .full { grid-column: 1; }
+    .branch-cards { grid-template-columns: 1fr; }
+    .checkbox-group { grid-template-columns: 1fr; }
     #form-screen { padding: 32px 16px 80px; }
     .btn-next { max-width: none; }
     .confirm-table td:first-child { width: 35%; font-size: 0.6rem; }
@@ -243,61 +296,47 @@
 <div id="form-screen">
   <div class="page-header">
     <span class="store-badge" id="store-badge">—</span>
-    <h1>店舗情報登録フォーム</h1>
+    <h1>新店舗情報登録フォーム</h1>
     <p>
-      各項目を入力して送信してください。<br>
-      未定の項目は「未定・後日入力」にチェックしてスキップ可能です。<br>
-      後から同じURLで再アクセスすれば修正・追記できます。
+      公式HPへの掲載・アプリへのアカウント登録のため、<br>
+      各項目を正式名称でご入力ください。<br>
+      同じURLから再アクセスすれば修正・追記が可能です。
     </p>
   </div>
 
   <div class="progress-wrap">
-    <div class="progress-bar">
-      <div class="progress-step active"></div>
-      <div class="progress-step"></div>
-      <div class="progress-step"></div>
-      <div class="progress-step"></div>
-    </div>
-    <div class="progress-labels">
-      <span class="active" id="lbl-0">会社情報</span>
-      <span id="lbl-1">代表者</span>
-      <span id="lbl-2">店舗情報</span>
-      <span id="lbl-3">確認・送信</span>
-    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="progress-labels" id="progress-labels"></div>
   </div>
 
-  <!-- Step 1 -->
+  <!-- Step 1: 出店区分 -->
   <div class="form-section active" id="step-0">
     <div class="section-header">
       <span class="section-num">01</span>
-      <span class="section-title">会社・法人情報</span>
+      <span class="section-title">出店区分</span>
       <span class="section-divider"></span>
     </div>
-    <div class="form-grid">
-      <div class="field full">
-        <label>会社名 / 法人名 <span class="req">*</span></label>
-        <input type="text" id="company-name" placeholder="例：株式会社サンプル" autocomplete="organization">
+    <div class="field full">
+      <label>BLOWご出店について <span class="req">*</span></label>
+      <div class="branch-cards">
+        <label class="branch-card">
+          <input type="radio" name="branch-type" value="first" onchange="onBranchChange()">
+          <div class="branch-card-inner">
+            <div class="branch-icon">🏪</div>
+            <div class="branch-title">初めてのご出店</div>
+            <div class="branch-desc">会社情報・店舗情報を<br>新規でご登録いただきます</div>
+          </div>
+        </label>
+        <label class="branch-card">
+          <input type="radio" name="branch-type" value="second" onchange="onBranchChange()">
+          <div class="branch-card-inner">
+            <div class="branch-icon">🏬</div>
+            <div class="branch-title">2店舗目以降のご出店</div>
+            <div class="branch-desc">店舗情報のみ<br>ご登録いただきます</div>
+          </div>
+        </label>
       </div>
-      <div class="field full">
-        <label>屋号 / ブランド名 <span class="opt">任意</span></label>
-        <input type="text" id="brand-name" placeholder="例：BLOW CASINO OSAKA">
-      </div>
-      <div class="field full">
-        <label>本社・登記住所 <span class="req">*</span></label>
-        <input type="text" id="hq-address" placeholder="例：大阪府大阪市中央区○○ 1-2-3" autocomplete="street-address">
-      </div>
-      <div class="field">
-        <label>代表電話番号 <span class="req">*</span></label>
-        <input type="tel" id="tel-main" placeholder="06-0000-0000" autocomplete="tel">
-      </div>
-      <div class="field">
-        <label>FAX番号 <span class="opt">任意</span></label>
-        <input type="tel" id="fax" placeholder="06-0000-0000">
-      </div>
-      <div class="field full">
-        <label>会社メールアドレス <span class="req">*</span></label>
-        <input type="email" id="email-company" placeholder="info@example.co.jp" autocomplete="email">
-      </div>
+      <span class="error-msg" id="err-branch">出店区分を選択してください</span>
     </div>
     <div class="form-nav">
       <button class="btn-back" disabled>← 戻る</button>
@@ -305,42 +344,65 @@
     </div>
   </div>
 
-  <!-- Step 2 -->
+  <!-- Step 2: 会社情報（初回のみ） -->
   <div class="form-section" id="step-1">
     <div class="section-header">
       <span class="section-num">02</span>
-      <span class="section-title">代表者・担当者情報</span>
+      <span class="section-title">会社情報</span>
       <span class="section-divider"></span>
     </div>
-    <div class="form-grid">
-      <div class="field">
-        <label>代表者氏名 <span class="req">*</span></label>
-        <input type="text" id="rep-name" placeholder="山田 太郎" autocomplete="name">
+    <!-- 初回用 -->
+    <div id="company-full" style="display:none;">
+      <div class="form-grid">
+        <div class="field full">
+          <label>運営会社名 <span class="req">*</span></label>
+          <input type="text" id="company-name" placeholder="例：株式会社サンプル" autocomplete="organization">
+          <span class="error-msg">運営会社名を入力してください</span>
+        </div>
+        <div class="field full">
+          <label>法人番号 <span class="opt">任意</span></label>
+          <input type="text" id="corporate-number" placeholder="例：1234567890123" inputmode="numeric" maxlength="13">
+          <span class="field-note">13桁の法人番号</span>
+        </div>
+        <div class="field full">
+          <label>ご請求書送付先メールアドレス <span class="req">*</span></label>
+          <input type="email" id="invoice-email" placeholder="invoice@example.co.jp" autocomplete="email">
+          <span class="error-msg">メールアドレスを入力してください</span>
+        </div>
+        <div class="field">
+          <label>会社郵便番号 <span class="req">*</span></label>
+          <input type="text" id="company-zip" placeholder="例：530-0002" inputmode="numeric" maxlength="8">
+          <span class="error-msg">郵便番号を入力してください</span>
+        </div>
+        <div class="field full">
+          <label>会社住所 <span class="req">*</span></label>
+          <input type="text" id="company-address" placeholder="例：大阪府大阪市北区曽根崎新地 1-8-19 3F" autocomplete="street-address">
+          <span class="error-msg">会社住所を入力してください</span>
+        </div>
+        <div class="field">
+          <label>会社電話番号 <span class="req">*</span></label>
+          <input type="tel" id="company-tel" placeholder="例：075-754-7450" autocomplete="tel">
+          <span class="error-msg">電話番号を入力してください</span>
+        </div>
+        <div class="field">
+          <label>ご担当者様名 <span class="req">*</span></label>
+          <input type="text" id="contact-name" placeholder="例：山田 太郎" autocomplete="name">
+          <span class="error-msg">担当者名を入力してください</span>
+        </div>
+        <div class="field full">
+          <label>会社ホームページ <span class="opt">任意</span></label>
+          <input type="url" id="company-url" placeholder="例：https://example.co.jp">
+        </div>
       </div>
-      <div class="field">
-        <label>フリガナ <span class="req">*</span></label>
-        <input type="text" id="rep-kana" placeholder="ヤマダ タロウ">
-      </div>
-      <div class="field">
-        <label>代表者直通番号 <span class="opt">任意</span></label>
-        <input type="tel" id="rep-tel" placeholder="090-0000-0000">
-      </div>
-      <div class="field">
-        <label>代表者メール <span class="opt">任意</span></label>
-        <input type="email" id="rep-email" placeholder="taro@example.co.jp">
-      </div>
-      <div class="field" id="field-contact">
-        <label>FC担当者氏名 <span class="opt">任意</span></label>
-        <input type="text" id="contact-name" placeholder="鈴木 花子">
-        <label class="tbd-wrap" for="tbd-contact">
-          <input type="checkbox" id="tbd-contact" onchange="toggleTbd('tbd-contact','field-contact')">
-          <span class="tbd-box"></span>
-          <span class="tbd-text">未定・後日入力</span>
-        </label>
-      </div>
-      <div class="field">
-        <label>FC担当者連絡先 <span class="opt">任意</span></label>
-        <input type="tel" id="contact-tel" placeholder="090-0000-0000">
+    </div>
+    <!-- 2店舗目以降用 -->
+    <div id="company-second" style="display:none;">
+      <div class="form-grid">
+        <div class="field full">
+          <label>運営会社名 <span class="req">*</span></label>
+          <input type="text" id="company-name-2" placeholder="例：株式会社サンプル" autocomplete="organization">
+          <span class="error-msg">運営会社名を入力してください</span>
+        </div>
       </div>
     </div>
     <div class="form-nav">
@@ -349,7 +411,7 @@
     </div>
   </div>
 
-  <!-- Step 3 -->
+  <!-- Step 3: 店舗情報 -->
   <div class="form-section" id="step-2">
     <div class="section-header">
       <span class="section-num">03</span>
@@ -358,52 +420,44 @@
     </div>
     <div class="form-grid">
       <div class="field full">
-        <label>店舗所在地 <span class="req">*</span></label>
-        <input type="text" id="store-address" placeholder="例：大阪府大阪市北区○○ 2-3-4 ××ビル 3F">
+        <label>店舗名 <span class="req">*</span></label>
+        <input type="text" id="store-name" placeholder="例：BLOW北新地">
+        <span class="error-msg">店舗名を入力してください</span>
       </div>
-      <div class="field" id="field-seats">
-        <label>総席数 <span class="opt">任意</span></label>
-        <input type="number" id="seats" placeholder="例：40" inputmode="numeric">
-        <label class="tbd-wrap" for="tbd-seats">
-          <input type="checkbox" id="tbd-seats" onchange="toggleTbd('tbd-seats','field-seats')">
-          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
-        </label>
+      <div class="field">
+        <label>店舗郵便番号 <span class="req">*</span></label>
+        <input type="text" id="store-zip" placeholder="例：530-0002" inputmode="numeric" maxlength="8">
+        <span class="error-msg">郵便番号を入力してください</span>
       </div>
-      <div class="field" id="field-area">
-        <label>店舗面積（㎡） <span class="opt">任意</span></label>
-        <input type="number" id="area" placeholder="例：120" inputmode="numeric">
-        <label class="tbd-wrap" for="tbd-area">
-          <input type="checkbox" id="tbd-area" onchange="toggleTbd('tbd-area','field-area')">
-          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
-        </label>
+      <div class="field full">
+        <label>店舗住所 <span class="req">*</span></label>
+        <input type="text" id="store-address" placeholder="例：大阪府大阪市北区曽根崎新地 1-8-19 3F">
+        <span class="error-msg">店舗住所を入力してください</span>
       </div>
-      <div class="field" id="field-hours">
-        <label>営業開始時間 <span class="opt">任意</span></label>
-        <input type="time" id="open-time" value="18:00">
-        <label class="tbd-wrap" for="tbd-hours">
-          <input type="checkbox" id="tbd-hours" onchange="toggleTbd('tbd-hours','field-hours','field-closetime')">
-          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
-        </label>
+      <div class="field">
+        <label>店舗電話番号 <span class="req">*</span></label>
+        <input type="tel" id="store-tel" placeholder="未定の場合は「未定」と入力">
+        <span class="error-msg">電話番号を入力してください</span>
       </div>
-      <div class="field" id="field-closetime">
-        <label>営業終了時間 <span class="opt">任意</span></label>
-        <input type="time" id="close-time" value="03:00">
+      <div class="field full">
+        <label>営業時間 <span class="req">*</span></label>
+        <input type="text" id="business-hours" placeholder="例：18:00〜25:00　※曜日別の場合：平日18:00〜25:00 日曜15:00〜23:00">
+        <span class="error-msg">営業時間を入力してください</span>
       </div>
-      <div class="field full" id="field-closed">
-        <label>定休日 <span class="opt">任意</span></label>
-        <input type="text" id="closed-days" placeholder="例：不定休 / 毎週月曜日">
-        <label class="tbd-wrap" for="tbd-closed">
-          <input type="checkbox" id="tbd-closed" onchange="toggleTbd('tbd-closed','field-closed')">
-          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
-        </label>
+      <div class="field">
+        <label>定休日 <span class="req">*</span></label>
+        <input type="text" id="closed-days" placeholder="例：定休日なし、年末年始のみ休業">
+        <span class="error-msg">定休日を入力してください</span>
       </div>
-      <div class="field full" id="field-staff">
-        <label>スタッフ数（概算） <span class="opt">任意</span></label>
-        <input type="text" id="staff-count" placeholder="例：社員2名・アルバイト8名">
-        <label class="tbd-wrap" for="tbd-staff">
-          <input type="checkbox" id="tbd-staff" onchange="toggleTbd('tbd-staff','field-staff')">
-          <span class="tbd-box"></span><span class="tbd-text">未定・後日入力</span>
-        </label>
+      <div class="field">
+        <label>OPEN日 <span class="opt">任意</span></label>
+        <input type="text" id="open-date" placeholder="例：2025年4月1日（火）　仮の場合：【仮】2025年4月">
+      </div>
+      <div class="field full">
+        <label>お問い合わせメール送付先 <span class="req">*</span></label>
+        <input type="email" id="inquiry-email" placeholder="例：kitashintiblow@gmail.com">
+        <span class="field-note">HPから問い合わせがあった場合の転送先アドレスです</span>
+        <span class="error-msg">メールアドレスを入力してください</span>
       </div>
     </div>
     <div class="form-nav">
@@ -412,21 +466,98 @@
     </div>
   </div>
 
-  <!-- Step 4 -->
+  <!-- Step 4: 掲載情報 -->
   <div class="form-section" id="step-3">
     <div class="section-header">
       <span class="section-num">04</span>
+      <span class="section-title">掲載情報</span>
+      <span class="section-divider"></span>
+    </div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>TOP紹介文 <span class="req">*</span></label>
+        <textarea id="top-intro" placeholder="例：大阪北エリアに73坪の大型店舗オープン。ドリンク飲み放題と、北新地では破格なシステム。広々とした店内と確かなディーリングでお客様を楽しませます。日々の遊びに飽きている方のご来店をお待ちしています。"></textarea>
+        <span class="field-note">公式HPに掲載される店舗紹介文です。簡略化せず正式な内容でご記入ください。</span>
+        <span class="error-msg">TOP紹介文を入力してください</span>
+      </div>
+      <div class="field full">
+        <label>掲載画像 <span class="opt">任意</span></label>
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('upload-input').click()">
+          <input type="file" id="upload-input" accept="image/*" onchange="handleImageUpload(event)">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">クリックして画像を選択</div>
+          <div class="upload-sub">JPG・PNG・GIF対応 / 最大10MB<br>アップロード時に自動リサイズされます</div>
+          <div class="upload-preview" id="upload-preview">
+            <img id="preview-img" src="" alt="プレビュー">
+            <button class="remove-btn" onclick="removeImage(event)">✕</button>
+          </div>
+          <div class="upload-filename" id="upload-filename"></div>
+        </div>
+      </div>
+      <div class="field full">
+        <label>ゲーム種類 <span class="req">*</span>（複数選択可）</label>
+        <div class="checkbox-group">
+          <label class="check-item">
+            <input type="checkbox" name="games" value="ブラックジャック">
+            <span class="check-box"></span>
+            <span class="check-label">ブラックジャック</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="games" value="バカラ">
+            <span class="check-box"></span>
+            <span class="check-label">バカラ</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="games" value="ルーレット">
+            <span class="check-box"></span>
+            <span class="check-label">ルーレット</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="games" value="ポーカー">
+            <span class="check-box"></span>
+            <span class="check-label">ポーカー</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="games" value="スリーカードポーカー">
+            <span class="check-box"></span>
+            <span class="check-label">スリーカードポーカー</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="games" value="アルティメットテキサスホールデム">
+            <span class="check-box"></span>
+            <span class="check-label">アルティメットテキサスホールデム</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" name="games" value="other" id="game-other-check">
+            <span class="check-box"></span>
+            <span class="check-label">その他</span>
+          </label>
+        </div>
+        <input type="text" class="check-other-input" id="game-other-text" placeholder="その他のゲーム名を入力" style="display:none;" oninput="">
+        <span class="error-msg" id="err-games">ゲーム種類を1つ以上選択してください</span>
+      </div>
+    </div>
+    <div class="form-nav">
+      <button class="btn-back" onclick="prevStep(3)">← 戻る</button>
+      <button class="btn-next" onclick="nextStep(3)">次へ &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- Step 5: 確認・送信 -->
+  <div class="form-section" id="step-4">
+    <div class="section-header">
+      <span class="section-num">05</span>
       <span class="section-title">確認・送信</span>
       <span class="section-divider"></span>
     </div>
     <p style="font-size:0.76rem;color:var(--text-secondary);margin-bottom:20px;line-height:1.8;">内容をご確認のうえ、送信してください。</p>
-    <table class="confirm-table" id="confirm-table"></table>
+    <div id="confirm-content"></div>
     <div class="field full" style="margin-bottom:8px;">
       <label>備考・連絡事項 <span class="opt">任意</span></label>
       <textarea id="remarks" placeholder="その他、本部へ伝えておきたいことがあればご記入ください。"></textarea>
     </div>
     <div class="form-nav">
-      <button class="btn-back" onclick="prevStep(3)">← 戻る</button>
+      <button class="btn-back" onclick="prevStep(4)">← 戻る</button>
       <button class="btn-next" id="btn-submit" onclick="submitForm()">送信する →</button>
     </div>
   </div>
@@ -439,7 +570,7 @@
   <p>
     ご入力ありがとうございます。<br>
     本部へ通知が送信されました。<br><br>
-    未入力の項目がある場合は、<br>同じURLから再アクセスして追記・修正できます。
+    修正・追記が必要な場合は、<br>同じURLから再アクセスしてください。
   </p>
   <button class="btn-reopen" onclick="location.reload()">追記・修正する</button>
 </div>
@@ -450,11 +581,17 @@
 // ══════════════════════
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwyqmkLFfiTwgqEZkeJjfQe4DTSaO-QeXgfjUN5424_TQTpgIEx42DnevKisBPUbVeowg/exec';
 
+// ステップラベル（分岐で動的に変わる）
+const STEP_LABELS = ['出店区分', '会社情報', '店舗情報', '掲載情報', '確認・送信'];
+const TOTAL_STEPS = 5;
+
 // ══════════════════════
 // 初期化
 // ══════════════════════
 const params    = new URLSearchParams(location.search);
 const storeCode = params.get('store') || '';
+let imageBase64 = '';
+let imageFileName = '';
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!storeCode) {
@@ -463,24 +600,58 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('store-badge').textContent = 'Store: ' + storeCode;
   document.getElementById('form-screen').classList.add('show');
+  buildProgressBar();
   restoreData(storeCode);
+
+  // その他ゲームチェック連動
+  document.getElementById('game-other-check').addEventListener('change', function() {
+    document.getElementById('game-other-text').style.display = this.checked ? 'block' : 'none';
+  });
 });
+
+// ══════════════════════
+// プログレスバー生成
+// ══════════════════════
+function buildProgressBar() {
+  const bar = document.getElementById('progress-bar');
+  const labels = document.getElementById('progress-labels');
+  bar.innerHTML = STEP_LABELS.map((_, i) =>
+    `<div class="progress-step${i === 0 ? ' active' : ''}" id="ps-${i}"></div>`
+  ).join('');
+  labels.innerHTML = STEP_LABELS.map((lbl, i) =>
+    `<span id="lbl-${i}"${i === 0 ? ' class="active"' : ''}>${lbl}</span>`
+  ).join('');
+}
+
+// ══════════════════════
+// 出店区分変更
+// ══════════════════════
+function onBranchChange() {
+  const val = getSelectedBranch();
+  document.getElementById('company-full').style.display   = val === 'first'  ? 'block' : 'none';
+  document.getElementById('company-second').style.display = val === 'second' ? 'block' : 'none';
+}
+
+function getSelectedBranch() {
+  const r = document.querySelector('input[name="branch-type"]:checked');
+  return r ? r.value : '';
+}
 
 // ══════════════════════
 // ステップ制御
 // ══════════════════════
 let currentStep = 0;
-const TOTAL = 4;
 
 function nextStep(from) {
-  if (from >= TOTAL - 1) return;
+  if (!validateStep(from)) return;
   document.getElementById('step-' + from).classList.remove('active');
   currentStep = from + 1;
   document.getElementById('step-' + currentStep).classList.add('active');
   updateProgress();
-  if (currentStep === 3) buildConfirmTable();
+  if (currentStep === 4) buildConfirmContent();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 function prevStep(from) {
   if (from <= 0) return;
   document.getElementById('step-' + from).classList.remove('active');
@@ -489,82 +660,251 @@ function prevStep(from) {
   updateProgress();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 function updateProgress() {
-  document.querySelectorAll('.progress-step').forEach((el, i) => el.classList.toggle('active', i <= currentStep));
-  ['lbl-0','lbl-1','lbl-2','lbl-3'].forEach((id, i) => document.getElementById(id).classList.toggle('active', i === currentStep));
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    document.getElementById('ps-' + i)?.classList.toggle('active', i <= currentStep);
+    document.getElementById('lbl-' + i)?.classList.toggle('active', i === currentStep);
+  }
 }
 
 // ══════════════════════
-// 未定チェック
+// バリデーション
 // ══════════════════════
-function toggleTbd(cbId, ...fieldIds) {
-  const checked = document.getElementById(cbId).checked;
-  fieldIds.forEach(fid => {
-    const el = document.getElementById(fid);
+function validateStep(step) {
+  let ok = true;
+
+  if (step === 0) {
+    if (!getSelectedBranch()) {
+      document.getElementById('err-branch').style.display = 'block';
+      ok = false;
+    } else {
+      document.getElementById('err-branch').style.display = 'none';
+    }
+  }
+
+  if (step === 1) {
+    const branch = getSelectedBranch();
+    if (branch === 'first') {
+      ok = checkRequired([
+        ['company-name',    '運営会社名を入力してください'],
+        ['invoice-email',   'メールアドレスを入力してください'],
+        ['company-zip',     '郵便番号を入力してください'],
+        ['company-address', '会社住所を入力してください'],
+        ['company-tel',     '電話番号を入力してください'],
+        ['contact-name',    '担当者名を入力してください'],
+      ]);
+    } else {
+      ok = checkRequired([['company-name-2', '運営会社名を入力してください']]);
+    }
+  }
+
+  if (step === 2) {
+    ok = checkRequired([
+      ['store-name',    '店舗名を入力してください'],
+      ['store-zip',     '郵便番号を入力してください'],
+      ['store-address', '店舗住所を入力してください'],
+      ['store-tel',     '電話番号を入力してください'],
+      ['business-hours','営業時間を入力してください'],
+      ['closed-days',   '定休日を入力してください'],
+      ['inquiry-email', 'メールアドレスを入力してください'],
+    ]);
+  }
+
+  if (step === 3) {
+    ok = checkRequired([['top-intro', 'TOP紹介文を入力してください']]);
+    const games = getCheckedGames();
+    if (games.length === 0) {
+      document.getElementById('err-games').style.display = 'block';
+      ok = false;
+    } else {
+      document.getElementById('err-games').style.display = 'none';
+    }
+  }
+
+  return ok;
+}
+
+function checkRequired(fields) {
+  let ok = true;
+  fields.forEach(([id, msg]) => {
+    const el = document.getElementById(id);
     if (!el) return;
-    el.classList.toggle('is-tbd', checked);
-    el.querySelectorAll('input:not([type="checkbox"]), select, textarea').forEach(inp => {
-      if (checked) { inp._savedVal = inp.value; inp.value = ''; }
-      else if (inp._savedVal !== undefined) inp.value = inp._savedVal;
-    });
+    const field = el.closest('.field');
+    const errMsg = field?.querySelector('.error-msg');
+    if (!el.value.trim()) {
+      field?.classList.add('error');
+      if (errMsg) errMsg.textContent = msg;
+      ok = false;
+    } else {
+      field?.classList.remove('error');
+    }
+    el.addEventListener('input', () => {
+      if (el.value.trim()) field?.classList.remove('error');
+    }, { once: false });
+  });
+  return ok;
+}
+
+function getCheckedGames() {
+  const checked = [...document.querySelectorAll('input[name="games"]:checked')];
+  return checked.map(c => {
+    if (c.value === 'other') {
+      const txt = document.getElementById('game-other-text').value.trim();
+      return txt ? 'その他：' + txt : 'その他';
+    }
+    return c.value;
   });
 }
 
 // ══════════════════════
-// 確認テーブル
+// 画像アップロード
 // ══════════════════════
-function buildConfirmTable() {
-  const rows = [
-    ['会社名 / 法人名', v('company-name')],
-    ['屋号',           v('brand-name')],
-    ['本社住所',        v('hq-address')],
-    ['代表電話',        v('tel-main')],
-    ['FAX',            v('fax')],
-    ['会社メール',      v('email-company')],
-    ['代表者氏名',      [v('rep-name'), v('rep-kana')].filter(Boolean).join('　')],
-    ['代表者電話',      v('rep-tel')],
-    ['代表者メール',    v('rep-email')],
-    ['FC担当者',        tbdOr('tbd-contact', v('contact-name'))],
-    ['FC担当者電話',    v('contact-tel')],
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    alert('ファイルサイズが10MBを超えています。');
+    return;
+  }
+  imageFileName = file.name;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      // リサイズ処理（長辺1200px・品質80%）
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+      // プレビュー表示
+      const preview = document.getElementById('upload-preview');
+      document.getElementById('preview-img').src = imageBase64;
+      preview.style.display = 'block';
+      document.getElementById('upload-filename').textContent = imageFileName;
+      document.getElementById('upload-area').classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.stopPropagation();
+}
+
+function removeImage(e) {
+  e.stopPropagation();
+  imageBase64 = '';
+  imageFileName = '';
+  document.getElementById('upload-input').value = '';
+  document.getElementById('upload-preview').style.display = 'none';
+  document.getElementById('upload-filename').textContent = '';
+  document.getElementById('upload-area').classList.remove('has-file');
+}
+
+// ══════════════════════
+// 確認画面生成
+// ══════════════════════
+function buildConfirmContent() {
+  const branch = getSelectedBranch();
+  let html = '';
+
+  // 会社情報
+  html += '<div class="confirm-section-title">会社情報</div>';
+  if (branch === 'first') {
+    html += buildTable([
+      ['運営会社名',      v('company-name')],
+      ['法人番号',        v('corporate-number')],
+      ['請求書送付先',    v('invoice-email')],
+      ['会社郵便番号',    v('company-zip')],
+      ['会社住所',        v('company-address')],
+      ['会社電話番号',    v('company-tel')],
+      ['担当者名',        v('contact-name')],
+      ['会社HP',         v('company-url')],
+    ]);
+  } else {
+    html += buildTable([['運営会社名', v('company-name-2')]]);
+  }
+
+  // 店舗情報
+  html += '<div class="confirm-section-title">店舗情報</div>';
+  html += buildTable([
+    ['店舗名',          v('store-name')],
+    ['店舗郵便番号',    v('store-zip')],
     ['店舗住所',        v('store-address')],
-    ['席数',            tbdOr('tbd-seats',  v('seats')  ? v('seats')  + ' 席' : '')],
-    ['面積',            tbdOr('tbd-area',   v('area')   ? v('area')   + ' ㎡' : '')],
-    ['営業時間',        tbdOr('tbd-hours',  v('open-time') && v('close-time') ? v('open-time') + ' ～ ' + v('close-time') : '')],
-    ['定休日',          tbdOr('tbd-closed', v('closed-days'))],
-    ['スタッフ数',      tbdOr('tbd-staff',  v('staff-count'))],
-  ];
-  document.getElementById('confirm-table').innerHTML =
-    rows.filter(([,val]) => val).map(([k, val]) =>
-      `<tr><td>${k}</td><td>${val}</td></tr>`
-    ).join('');
+    ['店舗電話番号',    v('store-tel')],
+    ['営業時間',        v('business-hours')],
+    ['定休日',          v('closed-days')],
+    ['OPEN日',         v('open-date')],
+    ['問い合わせ先',    v('inquiry-email')],
+  ]);
+
+  // 掲載情報
+  html += '<div class="confirm-section-title">掲載情報</div>';
+  const games = getCheckedGames();
+  let imgHtml = '';
+  if (imageBase64) {
+    imgHtml = `<img src="${imageBase64}" class="confirm-image" alt="掲載画像"><br><span style="font-size:0.72rem;color:var(--text-muted);">${imageFileName}</span>`;
+  }
+  html += buildTable([
+    ['TOP紹介文',   `<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],
+    ['掲載画像',    imgHtml || '<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],
+    ['ゲーム種類',  games.length ? games.join('、') : '<span style="color:var(--text-muted);font-size:0.78rem;">未選択</span>'],
+  ], true);
+
+  document.getElementById('confirm-content').innerHTML = html;
+}
+
+function buildTable(rows, raw = false) {
+  return '<table class="confirm-table">' +
+    rows.filter(([,val]) => val !== undefined).map(([k, val]) =>
+      `<tr><td>${k}</td><td>${raw ? val : escHtml(val || '')}</td></tr>`
+    ).join('') + '</table>';
 }
 
 function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
-function tbdOr(cbId, val) {
-  return document.getElementById(cbId)?.checked
-    ? '<span style="color:var(--text-muted);font-size:0.78rem;">未定（後日入力）</span>'
-    : (val || '');
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 
 // ══════════════════════
 // データ収集
 // ══════════════════════
 function gatherData() {
-  const tbd = id => !!document.getElementById(id)?.checked;
+  const branch = getSelectedBranch();
   return {
-    store: storeCode, timestamp: new Date().toISOString(),
-    companyName: v('company-name'), brandName: v('brand-name'),
-    hqAddress: v('hq-address'), telMain: v('tel-main'), fax: v('fax'),
-    emailCompany: v('email-company'), repName: v('rep-name'), repKana: v('rep-kana'),
-    repTel: v('rep-tel'), repEmail: v('rep-email'),
-    contactName: tbd('tbd-contact') ? '未定' : v('contact-name'),
-    contactTel: v('contact-tel'), storeAddress: v('store-address'),
-    seats:       tbd('tbd-seats')  ? '未定' : v('seats'),
-    area:        tbd('tbd-area')   ? '未定' : v('area'),
-    openTime:    tbd('tbd-hours')  ? '未定' : v('open-time'),
-    closeTime:   tbd('tbd-hours')  ? '未定' : v('close-time'),
-    closedDays:  tbd('tbd-closed') ? '未定' : v('closed-days'),
-    staffCount:  tbd('tbd-staff')  ? '未定' : v('staff-count'),
+    store: storeCode,
+    timestamp: new Date().toISOString(),
+    branchType: branch === 'first' ? '初めてのご出店' : '2店舗目以降のご出店',
+    // 会社情報
+    companyName:     branch === 'first' ? v('company-name')    : v('company-name-2'),
+    corporateNumber: branch === 'first' ? v('corporate-number') : '',
+    invoiceEmail:    branch === 'first' ? v('invoice-email')    : '',
+    companyZip:      branch === 'first' ? v('company-zip')      : '',
+    companyAddress:  branch === 'first' ? v('company-address')  : '',
+    companyTel:      branch === 'first' ? v('company-tel')      : '',
+    contactName:     branch === 'first' ? v('contact-name')     : '',
+    companyUrl:      branch === 'first' ? v('company-url')      : '',
+    // 店舗情報
+    storeName:      v('store-name'),
+    storeZip:       v('store-zip'),
+    storeAddress:   v('store-address'),
+    storeTel:       v('store-tel'),
+    businessHours:  v('business-hours'),
+    closedDays:     v('closed-days'),
+    openDate:       v('open-date'),
+    inquiryEmail:   v('inquiry-email'),
+    // 掲載情報
+    topIntro:       v('top-intro'),
+    games:          getCheckedGames().join('、'),
+    imageBase64:    imageBase64,
+    imageFileName:  imageFileName,
+    // 備考
     remarks: v('remarks'),
   };
 }
@@ -603,36 +943,54 @@ function restoreData(code) {
     const saved = localStorage.getItem('blow_fc_' + code);
     if (!saved) return;
     const d = JSON.parse(saved);
+    // 出店区分
+    if (d.branchType) {
+      const val = d.branchType.includes('初めて') ? 'first' : 'second';
+      const radio = document.querySelector(`input[name="branch-type"][value="${val}"]`);
+      if (radio) { radio.checked = true; onBranchChange(); }
+    }
     const map = {
-      'company-name': d.companyName, 'brand-name': d.brandName,
-      'hq-address': d.hqAddress,     'tel-main': d.telMain,
-      'fax': d.fax,                   'email-company': d.emailCompany,
-      'rep-name': d.repName,          'rep-kana': d.repKana,
-      'rep-tel': d.repTel,            'rep-email': d.repEmail,
-      'contact-name':  d.contactName !== '未定' ? d.contactName  : '',
-      'contact-tel':   d.contactTel,
-      'store-address': d.storeAddress,
-      'seats':       d.seats       !== '未定' ? d.seats       : '',
-      'area':        d.area        !== '未定' ? d.area        : '',
-      'open-time':   d.openTime    !== '未定' ? d.openTime    : '',
-      'close-time':  d.closeTime   !== '未定' ? d.closeTime   : '',
-      'closed-days': d.closedDays  !== '未定' ? d.closedDays  : '',
-      'staff-count': d.staffCount  !== '未定' ? d.staffCount  : '',
-      'remarks': d.remarks,
+      'company-name': d.companyName, 'company-name-2': d.companyName,
+      'corporate-number': d.corporateNumber, 'invoice-email': d.invoiceEmail,
+      'company-zip': d.companyZip, 'company-address': d.companyAddress,
+      'company-tel': d.companyTel, 'contact-name': d.contactName,
+      'company-url': d.companyUrl,
+      'store-name': d.storeName, 'store-zip': d.storeZip,
+      'store-address': d.storeAddress, 'store-tel': d.storeTel,
+      'business-hours': d.businessHours, 'closed-days': d.closedDays,
+      'open-date': d.openDate, 'inquiry-email': d.inquiryEmail,
+      'top-intro': d.topIntro, 'remarks': d.remarks,
     };
     Object.entries(map).forEach(([id, val]) => {
       const el = document.getElementById(id);
       if (el && val) el.value = val;
     });
-    // 未定チェック復元
-    [['tbd-contact',d.contactName],['tbd-seats',d.seats],['tbd-area',d.area],
-     ['tbd-hours',d.openTime],['tbd-closed',d.closedDays],['tbd-staff',d.staffCount]]
-    .forEach(([cbId, val]) => {
-      if (val === '未定') {
-        const cb = document.getElementById(cbId);
-        if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
-      }
-    });
+    // ゲーム種類復元
+    if (d.games) {
+      const savedGames = d.games.split('、');
+      document.querySelectorAll('input[name="games"]').forEach(cb => {
+        if (cb.value === 'other') {
+          const otherGame = savedGames.find(g => g.startsWith('その他：'));
+          if (otherGame) {
+            cb.checked = true;
+            document.getElementById('game-other-text').style.display = 'block';
+            document.getElementById('game-other-text').value = otherGame.replace('その他：', '');
+          }
+        } else if (savedGames.includes(cb.value)) {
+          cb.checked = true;
+        }
+      });
+    }
+    // 画像復元
+    if (d.imageBase64) {
+      imageBase64 = d.imageBase64;
+      imageFileName = d.imageFileName || '';
+      const preview = document.getElementById('upload-preview');
+      document.getElementById('preview-img').src = imageBase64;
+      preview.style.display = 'block';
+      document.getElementById('upload-filename').textContent = imageFileName;
+      document.getElementById('upload-area').classList.add('has-file');
+    }
   } catch(e) {}
 }
 </script>
