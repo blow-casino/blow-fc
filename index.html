@@ -913,12 +913,12 @@
         <label class="later-check" style="margin-top:10px;">
           <input type="checkbox" id="top-intro-ai" onchange="toggleAIPanel()">
           <span class="later-check-box"></span>
-          <span class="later-check-label">✦ AIに考えてもらう</span>
+          <span class="later-check-label">エリアマネージャーに任せる</span>
         </label>
 
-        <!-- AI生成パネル -->
+        <!-- エリアマネージャー向け参考情報パネル -->
         <div class="ai-panel" id="ai-panel" style="display:none;">
-          <div class="ai-panel-title">店舗情報を入力してAIが紹介文を生成します</div>
+          <div class="ai-panel-title">参考情報をご入力ください（エリアマネージャーが紹介文を作成します）</div>
           <div class="ai-input-grid">
             <div class="ai-field ai-full">
               <label>内装イメージ</label>
@@ -967,7 +967,6 @@
                 </label>
               </div>
               <input type="text" class="check-other-input" id="interior-other-text" placeholder="内装イメージを入力" style="display:none; margin-top:8px;">
-
             </div>
             <div class="ai-field">
               <label>エリア・立地</label>
@@ -978,14 +977,9 @@
               <input type="text" id="ai-size" placeholder="例：50坪、100㎡">
             </div>
           </div>
-          <button class="btn-ai-gen" id="btn-ai-gen" onclick="generateIntro()">
-            <span class="ai-spinner-inline" id="ai-spinner"></span>
-            <span id="ai-gen-label">✦ &nbsp;紹介文を生成する</span>
-          </button>
-          <div class="ai-result-note" id="ai-result-note" style="display:none;">生成されました。上のテキストエリアで編集できます。</div>
         </div>
 
-        <span class="error-msg" id="err-top-intro">TOP紹介文を入力するか、AI生成をご利用ください</span>
+        <span class="error-msg" id="err-top-intro">TOP紹介文を入力するか、「エリアマネージャーに任せる」を選択してください</span>
       </div>
       <div class="field full">
         <label>掲載画像 <span class="opt">任意</span></label>
@@ -1215,88 +1209,17 @@ function windLicenseClick(e) {
 }
 
 // ══════════════════════
-// AI紹介文パネルトグル
+// エリアマネージャーパネルトグル
 // ══════════════════════
 function toggleAIPanel() {
-  const chk    = document.getElementById('top-intro-ai').checked;
-  const panel  = document.getElementById('ai-panel');
-  const ta     = document.getElementById('top-intro');
+  const chk   = document.getElementById('top-intro-ai').checked;
+  const panel = document.getElementById('ai-panel');
+  const ta    = document.getElementById('top-intro');
   panel.style.display = chk ? 'block' : 'none';
-  // AI生成チェック時はテキストエリアをクリア・編集可能のまま
-  if (!chk) document.getElementById('ai-result-note').style.display = 'none';
+  ta.disabled = chk;
+  if (chk) { ta._saved = ta.value; ta.value = ''; }
+  else     { ta.value = ta._saved || ''; }
   document.getElementById('err-top-intro').style.display = 'none';
-}
-
-// ══════════════════════
-// AI紹介文生成
-// ══════════════════════
-async function generateIntro() {
-  const btn      = document.getElementById('btn-ai-gen');
-  const spinner  = document.getElementById('ai-spinner');
-  const label    = document.getElementById('ai-gen-label');
-  const note     = document.getElementById('ai-result-note');
-  const ta       = document.getElementById('top-intro');
-
-  let interior = document.querySelector('input[name="interior"]:checked')?.value || '';
-  if (interior === 'その他') {
-    const other = document.getElementById('interior-other-text').value.trim();
-    interior = other ? other : 'その他';
-  }
-  const area     = document.getElementById('ai-area').value.trim();
-  const size     = document.getElementById('ai-size').value.trim();
-  const storeName= document.getElementById('store-name').value.trim();
-  const games    = getCheckedGames().join('・');
-  const hours    = document.getElementById('business-hours').value.trim();
-
-  btn.disabled  = true;
-  spinner.classList.add('show');
-  label.textContent = '生成中...';
-  note.style.display = 'none';
-
-  const prompt = `あなたはアミューズメントカジノバー「BLOW」のフランチャイズ店舗の公式HPに掲載する店舗紹介文を書くライターです。
-以下の店舗情報をもとに、魅力的なTOP紹介文を日本語で150〜200文字程度で作成してください。
-
-【店舗情報】
-- 店舗名：${storeName || 'BLOW（店舗名未定）'}
-- エリア・立地：${area || '未記入'}
-- 広さ：${size || '未記入'}
-- 内装イメージ：${interior || '未選択'}
-- 提供ゲーム：${games || '未選択'}
-- 営業時間：${hours || '未記入'}
-
-【条件】
-- 「アミューズメントカジノ」「カジノバー」などの業態をさりげなく含める
-- 内装イメージのキーワードを雰囲気として活かす
-- 来店を促す言葉で締める
-- 文体は丁寧だが親しみやすく
-- 紹介文本文のみを出力し、前置きや説明は不要`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.find(b => b.type === 'text')?.text || '';
-    if (text) {
-      ta.value = text.trim();
-      note.style.display = 'block';
-      document.getElementById('err-top-intro').style.display = 'none';
-    } else {
-      alert('生成に失敗しました。再度お試しください。');
-    }
-  } catch(err) {
-    alert('通信エラーが発生しました。\n' + err.message);
-  } finally {
-    btn.disabled  = false;
-    spinner.classList.remove('show');
-    label.textContent = '✦ \u00a0紹介文を再生成する';
-  }
 }
 
 // ══════════════════════
@@ -1354,9 +1277,10 @@ function validateStep(step) {
     ok = checkRequired([['store-name','店舗名を入力してください'],['store-zip','郵便番号を入力してください'],['store-address','店舗住所を入力してください'],['inquiry-email','メールアドレスを入力してください']]);
   }
   if (step===3) {
+    const am   = document.getElementById('top-intro-ai').checked;
     const intro= document.getElementById('top-intro').value.trim();
-    if (!intro) { document.getElementById('err-top-intro').style.display='block'; ok=false; }
-    else        { document.getElementById('err-top-intro').style.display='none'; }
+    if (!am && !intro) { document.getElementById('err-top-intro').style.display='block'; ok=false; }
+    else               { document.getElementById('err-top-intro').style.display='none'; }
     const games = getCheckedGames();
     if (!games.length) { document.getElementById('err-games').style.display='block'; ok=false; }
     else               { document.getElementById('err-games').style.display='none'; }
@@ -1485,9 +1409,10 @@ function buildConfirmContent() {
   html+=buildTable([['管理画面URL',cL?'【後で回答】':v('camera-url')],['ログインID',cL?'【後で回答】':v('camera-id')],['パスワード',cL?'【後で回答】':(v('camera-password')?'••••••••':'')]]);
   html+='<div class="confirm-section-title">店舗用 Google アカウント</div>';
   html+=buildTable([['Gmail アドレス',v('google-email')||'未記入']]);
+  const am = document.getElementById('top-intro-ai').checked;
   const imgHtml=imageBase64?`<img src="${imageBase64}" class="confirm-image" alt="掲載画像"><br><span style="font-size:0.72rem;color:var(--text-muted);">${imageFileName}</span>`:'';
   html+='<div class="confirm-section-title">掲載情報</div>';
-  html+=buildTable([['TOP紹介文',`<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
+  html+=buildTable([['TOP紹介文', am ? '【エリアマネージャーに任せる】' : `<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
   document.getElementById('confirm-content').innerHTML=html;
 }
 function buildTable(rows,raw=false) {
@@ -1539,7 +1464,7 @@ function gatherData() {
     cameraId:cL?'【後で回答】':v('camera-id'),
     cameraPassword:cL?'【後で回答】':v('camera-password'),
     googleEmail:v('google-email'),
-    topIntro:v('top-intro'),
+    topIntro:document.getElementById('top-intro-ai').checked ? '【エリアマネージャーに任せる】' : v('top-intro'),
     games:getCheckedGames().join('、'),
     imageBase64, imageFileName,
     remarks:v('remarks'),
@@ -1594,7 +1519,7 @@ function restoreFields(d) {
     'camera-url':d.cameraUrl,'camera-id':d.cameraId,
     'register-id':d.registerId,
     'google-email':d.googleEmail,
-    'top-intro': d.topIntro || '',
+    'top-intro': (d.topIntro === '【エリアマネージャーに任せる】') ? '' : (d.topIntro || ''),
     'remarks':d.remarks,
   };
   Object.entries(map).forEach(([id,val])=>{
@@ -1611,6 +1536,7 @@ function restoreFields(d) {
   if(d.igUrl==='【後で回答】'){document.getElementById('ig-later').checked=true;toggleLaterGroup('ig-later',['ig-url','ig-id','ig-password']);}
   if(d.registerId==='【後で回答】'){document.getElementById('register-later').checked=true;toggleLaterGroup('register-later',['register-id','register-password']);}
   if(d.cameraUrl==='【後で回答】'){document.getElementById('camera-later').checked=true;toggleLaterGroup('camera-later',['camera-url','camera-id','camera-password']);}
+  if(d.topIntro==='【エリアマネージャーに任せる】'){document.getElementById('top-intro-ai').checked=true;toggleAIPanel();}
   if(d.windLicenseBase64==='【不要】'){document.getElementById('wind-na').checked=true;toggleWindNA();}
   else if(d.windLicenseBase64==='【未取得】'){document.getElementById('wind-later').checked=true;toggleWindLater();}
   // レジ種類
