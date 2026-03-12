@@ -314,28 +314,25 @@
 
   /* 画像アップロード */
   .upload-area {
-    border: 1px dashed var(--dark-border); padding: 32px 20px;
+    border: 1px dashed var(--dark-border); padding: 28px 20px;
     text-align: center; cursor: pointer; transition: border-color 0.25s, background 0.25s;
     background: var(--dark-input); position: relative;
   }
-  .upload-area:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
-  .upload-area.has-file { border-color: var(--gold); border-style: solid; }
+  .upload-area:hover, .upload-area.drag-over { border-color: var(--gold); background: rgba(201,168,76,0.06); }
   .upload-area input[type="file"] { display: none; }
   .upload-icon { font-size: 1.8rem; margin-bottom: 10px; color: var(--text-muted); }
   .upload-text { font-size: 0.74rem; color: var(--text-secondary); letter-spacing: 0.08em; }
   .upload-sub { font-size: 0.62rem; color: var(--text-muted); margin-top: 6px; }
-  .upload-preview {
-    display: none; margin-top: 16px;
-    position: relative; width: fit-content; margin: 16px auto 0;
-  }
-  .upload-preview img { max-width: 200px; max-height: 150px; object-fit: cover; border: 1px solid var(--dark-border); }
-  .upload-preview .remove-btn {
+  .multi-preview { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; justify-content: center; }
+  .preview-item { position: relative; }
+  .preview-item img { width: 110px; height: 82px; object-fit: cover; border: 1px solid var(--dark-border); display: block; }
+  .preview-item .remove-btn {
     position: absolute; top: -8px; right: -8px;
     width: 20px; height: 20px; background: #8b2222;
     border: none; color: #fff; cursor: pointer; font-size: 0.7rem;
     display: flex; align-items: center; justify-content: center;
   }
-  .upload-filename { font-size: 0.7rem; color: var(--gold); margin-top: 8px; }
+  .upload-count { font-size: 0.66rem; color: var(--gold); margin-top: 8px; }
 
   /* 書類アップロード */
   .doc-upload-area {
@@ -343,7 +340,7 @@
     text-align: center; cursor: pointer; transition: border-color 0.25s, background 0.25s, opacity 0.25s;
     background: var(--dark-input);
   }
-  .doc-upload-area:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .doc-upload-area:hover, .doc-upload-area.drag-over { border-color: var(--gold); background: rgba(201,168,76,0.04); }
   .doc-upload-area.has-file { border-color: var(--gold); border-style: solid; }
   .doc-upload-area input[type="file"] { display: none; }
   .doc-icon { font-size: 1.4rem; margin-bottom: 8px; color: var(--text-muted); }
@@ -784,10 +781,14 @@
     <div class="form-grid">
       <div class="field full">
         <label>飲食店営業許可証 <span class="opt">任意</span></label>
-        <div class="doc-upload-area" id="food-license-area" onclick="foodLicenseClick(event)">
+        <div class="doc-upload-area" id="food-license-area"
+          onclick="foodLicenseClick(event)"
+          ondragover="handleDragOver(event,'food-license-area')"
+          ondragleave="handleDragLeave(event,'food-license-area')"
+          ondrop="handleDocDrop(event,'food')">
           <input type="file" id="food-license-input" accept="image/*,application/pdf" onchange="handleDocUpload(event,'food')">
           <div class="doc-icon">📄</div>
-          <div class="doc-text">クリックしてファイルを選択</div>
+          <div class="doc-text">クリックまたはドラッグ＆ドロップ</div>
           <div class="doc-sub">JPG・PNG・PDF対応 / 最大20MB</div>
           <div class="doc-filename" id="food-filename"></div>
           <button class="doc-remove" id="food-remove" onclick="removeDoc(event,'food')">✕ 削除</button>
@@ -800,10 +801,14 @@
       </div>
       <div class="field full">
         <label>風営法許可証 <span class="opt">任意</span></label>
-        <div class="doc-upload-area" id="wind-license-area" onclick="windLicenseClick(event)">
+        <div class="doc-upload-area" id="wind-license-area"
+          onclick="windLicenseClick(event)"
+          ondragover="handleDragOver(event,'wind-license-area')"
+          ondragleave="handleDragLeave(event,'wind-license-area')"
+          ondrop="handleDocDrop(event,'wind')">
           <input type="file" id="wind-license-input" accept="image/*,application/pdf" onchange="handleDocUpload(event,'wind')">
           <div class="doc-icon">📄</div>
-          <div class="doc-text">クリックしてファイルを選択</div>
+          <div class="doc-text">クリックまたはドラッグ＆ドロップ</div>
           <div class="doc-sub">JPG・PNG・PDF対応 / 最大20MB</div>
           <div class="doc-filename" id="wind-filename"></div>
           <button class="doc-remove" id="wind-remove" onclick="removeDoc(event,'wind')">✕ 削除</button>
@@ -986,16 +991,17 @@
       </div>
       <div class="field full">
         <label>掲載画像 <span class="opt">任意</span></label>
-        <div class="upload-area" id="upload-area" onclick="document.getElementById('upload-input').click()">
-          <input type="file" id="upload-input" accept="image/*" onchange="handleImageUpload(event)">
+        <div class="upload-area" id="upload-area"
+          onclick="document.getElementById('upload-input').click()"
+          ondragover="handleDragOver(event,'upload-area')"
+          ondragleave="handleDragLeave(event,'upload-area')"
+          ondrop="handleImageDrop(event)">
+          <input type="file" id="upload-input" accept="image/*" multiple onchange="handleImageUpload(event)">
           <div class="upload-icon">📷</div>
-          <div class="upload-text">クリックして画像を選択</div>
-          <div class="upload-sub">JPG・PNG・GIF対応 / 最大10MB<br>アップロード時に自動リサイズされます</div>
-          <div class="upload-preview" id="upload-preview">
-            <img id="preview-img" src="" alt="プレビュー">
-            <button class="remove-btn" onclick="removeImage(event)">✕</button>
-          </div>
-          <div class="upload-filename" id="upload-filename"></div>
+          <div class="upload-text">クリックまたはドラッグ＆ドロップで画像を追加</div>
+          <div class="upload-sub">JPG・PNG・GIF対応 / 1枚10MBまで / 最大15枚<br>アップロード時に自動リサイズされます</div>
+          <div class="multi-preview" id="multi-preview"></div>
+          <div class="upload-count" id="upload-count"></div>
         </div>
       </div>
       <div class="field full">
@@ -1060,7 +1066,7 @@ const TOTAL_STEPS = 5;
 // ══════════════════════
 const params    = new URLSearchParams(location.search);
 const storeCode = params.get('store') || '';
-let imageBase64 = '', imageFileName = '';
+let imageList = []; // 複数画像 [{base64, fileName}]
 let foodBase64 = '', foodFileName = '';
 let windBase64 = '', windFileName = '';
 
@@ -1319,60 +1325,108 @@ function getCheckedGames() {
 // ══════════════════════
 // 掲載画像アップロード
 // ══════════════════════
-function handleImageUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 10*1024*1024) { alert('ファイルサイズが10MBを超えています。'); return; }
-  imageFileName = file.name;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX=1200; let w=img.width,h=img.height;
-      if(w>MAX||h>MAX){ if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
-      const c=document.createElement('canvas'); c.width=w; c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      imageBase64 = c.toDataURL('image/jpeg',0.8);
-      document.getElementById('preview-img').src = imageBase64;
-      document.getElementById('upload-preview').style.display='block';
-      document.getElementById('upload-filename').textContent=imageFileName;
-      document.getElementById('upload-area').classList.add('has-file');
-    };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(file); e.stopPropagation();
+// ══════════════════════
+// ドラッグ＆ドロップ共通
+// ══════════════════════
+function handleDragOver(e, areaId) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById(areaId).classList.add('drag-over');
 }
-function removeImage(e) {
-  e.stopPropagation(); imageBase64=''; imageFileName='';
-  document.getElementById('upload-input').value='';
-  document.getElementById('upload-preview').style.display='none';
-  document.getElementById('upload-filename').textContent='';
-  document.getElementById('upload-area').classList.remove('has-file');
+function handleDragLeave(e, areaId) {
+  e.stopPropagation();
+  document.getElementById(areaId).classList.remove('drag-over');
 }
 
 // ══════════════════════
-// 書類アップロード
+// 掲載画像（複数対応）
 // ══════════════════════
+let imageList = []; // [{base64, fileName}, ...]
+const MAX_IMAGES = 15;
+
+function handleImageDrop(e) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('upload-area').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  processImageFiles(files);
+}
+function handleImageUpload(e) {
+  const files = Array.from(e.target.files);
+  processImageFiles(files);
+  e.target.value = '';
+}
+function processImageFiles(files) {
+  const remaining = MAX_IMAGES - imageList.length;
+  if (remaining <= 0) { alert(`画像は最大${MAX_IMAGES}枚までです。`); return; }
+  const targets = files.slice(0, remaining);
+  if (files.length > remaining) alert(`${files.length}枚選択されましたが、残り${remaining}枚のみ追加されます。`);
+  targets.forEach(file => {
+    if (file.size > 10*1024*1024) { alert(`${file.name} は10MBを超えています。スキップします。`); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX=1200; let w=img.width, h=img.height;
+        if(w>MAX||h>MAX){ if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        imageList.push({ base64: c.toDataURL('image/jpeg',0.8), fileName: file.name });
+        renderImagePreviews();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderImagePreviews() {
+  const area = document.getElementById('upload-area');
+  const wrap = document.getElementById('multi-preview');
+  const count = document.getElementById('upload-count');
+  wrap.innerHTML = imageList.map((img, i) => `
+    <div class="preview-item">
+      <img src="${img.base64}" alt="${img.fileName}">
+      <button class="remove-btn" onclick="removeImageAt(event,${i})">✕</button>
+    </div>`).join('');
+  count.textContent = imageList.length > 0 ? `${imageList.length} / ${MAX_IMAGES} 枚` : '';
+  area.classList.toggle('has-file', imageList.length > 0);
+}
+function removeImageAt(e, idx) {
+  e.stopPropagation();
+  imageList.splice(idx, 1);
+  renderImagePreviews();
+}
+
+// ══════════════════════
+// 書類アップロード（D&D対応）
+// ══════════════════════
+function handleDocDrop(e, type) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById(type==='food'?'food-license-area':'wind-license-area').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processDocFile(file, type);
+}
 function handleDocUpload(e, type) {
-  const file=e.target.files[0];
-  if (!file) return;
-  if (file.size>20*1024*1024) { alert('ファイルサイズが20MBを超えています。'); return; }
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const b64=ev.target.result, name=file.name;
-    if(type==='food'){foodBase64=b64;foodFileName=name;}
-    else             {windBase64=b64;windFileName=name;}
-    document.getElementById(type+'-filename').textContent=name;
-    document.getElementById(type+'-filename').style.display='block';
-    document.getElementById(type+'-remove').style.display='inline-block';
+  const file = e.target.files[0];
+  if (file) processDocFile(file, type);
+  e.stopPropagation();
+}
+function processDocFile(file, type) {
+  if (file.size > 20*1024*1024) { alert('ファイルサイズが20MBを超えています。'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const b64 = ev.target.result, name = file.name;
+    if(type==='food'){foodBase64=b64; foodFileName=name;}
+    else             {windBase64=b64; windFileName=name;}
+    document.getElementById(type+'-filename').textContent = name;
+    document.getElementById(type+'-filename').style.display = 'block';
+    document.getElementById(type+'-remove').style.display = 'inline-block';
     document.getElementById(type==='food'?'food-license-area':'wind-license-area').classList.add('has-file');
   };
-  reader.readAsDataURL(file); e.stopPropagation();
+  reader.readAsDataURL(file);
 }
-function removeDoc(e,type) {
+function removeDoc(e, type) {
   e.stopPropagation();
-  if(type==='food'){foodBase64='';foodFileName='';}
-  else             {windBase64='';windFileName='';}
+  if(type==='food'){foodBase64=''; foodFileName='';}
+  else             {windBase64=''; windFileName='';}
   document.getElementById(type+'-license-input').value='';
   document.getElementById(type+'-filename').style.display='none';
   document.getElementById(type+'-remove').style.display='none';
@@ -1414,7 +1468,9 @@ function buildConfirmContent() {
   html+='<div class="confirm-section-title">店舗用 Google アカウント</div>';
   html+=buildTable([['Gmail アドレス',v('google-email')||'未記入']]);
   const am = document.getElementById('top-intro-ai').checked;
-  const imgHtml=imageBase64?`<img src="${imageBase64}" class="confirm-image" alt="掲載画像"><br><span style="font-size:0.72rem;color:var(--text-muted);">${imageFileName}</span>`:'';
+  const imgHtml = imageList.length > 0
+    ? imageList.map(img => `<img src="${img.base64}" class="confirm-image" alt="${img.fileName}" style="margin:2px;"> <span style="font-size:0.66rem;color:var(--text-muted);">${img.fileName}</span>`).join('<br>')
+    : '';
   html+='<div class="confirm-section-title">掲載情報</div>';
   html+=buildTable([['TOP紹介文', am ? '【エリアマネージャーに任せる】' : `<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
   document.getElementById('confirm-content').innerHTML=html;
@@ -1471,7 +1527,10 @@ function gatherData() {
     googleEmail:v('google-email'),
     topIntro:document.getElementById('top-intro-ai').checked ? '【エリアマネージャーに任せる】' : v('top-intro'),
     games:getCheckedGames().join('、'),
-    imageBase64, imageFileName,
+    images: imageList.map(img => ({ base64: img.base64, fileName: img.fileName })),
+    // 後方互換のため先頭1枚もセット
+    imageBase64: imageList[0]?.base64 || '',
+    imageFileName: imageList[0]?.fileName || '',
     remarks:v('remarks'),
   };
 }
@@ -1558,13 +1617,14 @@ function restoreFields(d) {
       else if(sg.includes(cb.value)) cb.checked=true;
     });
   }
-  // 画像
-  if(d.imageBase64){
-    imageBase64=d.imageBase64; imageFileName=d.imageFileName||'';
-    document.getElementById('preview-img').src=imageBase64;
-    document.getElementById('upload-preview').style.display='block';
-    document.getElementById('upload-filename').textContent=imageFileName;
-    document.getElementById('upload-area').classList.add('has-file');
+  // 画像復元（複数対応）
+  if(d.images && d.images.length > 0) {
+    imageList = d.images;
+    renderImagePreviews();
+  } else if(d.imageBase64) {
+    // 旧形式からの移行
+    imageList = [{ base64: d.imageBase64, fileName: d.imageFileName || 'image.jpg' }];
+    renderImagePreviews();
   }
 }
 </script>
