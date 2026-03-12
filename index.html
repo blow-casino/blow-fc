@@ -17,6 +17,7 @@
     --text-primary: #e8e4d8;
     --text-secondary: #7a7668;
     --text-muted: #3a3830;
+    --label-color: #c8c4b8;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,6 +40,82 @@
       radial-gradient(ellipse 40% 60% at 100% 100%, rgba(139,26,26,0.06) 0%, transparent 60%);
     pointer-events: none; z-index: 0;
   }
+
+  /* ── アクセスコード画面 ── */
+  #auth-screen {
+    display: none; position: fixed; inset: 0;
+    align-items: center; justify-content: center;
+    z-index: 200; background: var(--dark-bg);
+  }
+  #auth-screen.show { display: flex; }
+  .auth-box {
+    width: min(420px, 90vw); padding: 52px 40px;
+    background: var(--dark-card); border: 1px solid var(--dark-border);
+    text-align: center; animation: fadeInUp 0.5s ease both;
+    position: relative;
+  }
+  .auth-box::before {
+    content: '';
+    position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .auth-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 300;
+    letter-spacing: 0.3em; color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .auth-subtitle {
+    font-size: 0.62rem; letter-spacing: 0.2em;
+    color: var(--text-secondary); margin-bottom: 36px;
+    text-transform: uppercase;
+  }
+  .auth-box h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 300;
+    letter-spacing: 0.1em; margin-bottom: 8px;
+  }
+  .auth-box p {
+    font-size: 0.74rem; color: var(--text-secondary);
+    line-height: 1.8; margin-bottom: 24px;
+  }
+  .auth-input {
+    width: 100%; padding: 14px 16px; margin-bottom: 12px;
+    background: var(--dark-input); border: 1px solid var(--dark-border);
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px; font-weight: 300; outline: none;
+    text-align: center; letter-spacing: 0.3em;
+    transition: border-color 0.25s;
+  }
+  .auth-input:focus { border-color: var(--gold); }
+  .auth-input.error { border-color: #8b2222; }
+  .auth-error {
+    font-size: 0.68rem; color: #c44;
+    margin-bottom: 12px; display: none;
+  }
+  .auth-error.show { display: block; }
+  .btn-auth {
+    width: 100%; padding: 14px;
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.22em; cursor: pointer;
+    position: relative; overflow: hidden; transition: color 0.3s;
+  }
+  .btn-auth::before {
+    content: ''; position: absolute; inset: 0; background: var(--gold);
+    transform: translateX(-101%); transition: transform 0.3s; z-index: -1;
+  }
+  .btn-auth:hover { color: var(--dark-bg); }
+  .btn-auth:hover::before { transform: translateX(0); }
+  .btn-auth:disabled { opacity: 0.4; cursor: not-allowed; }
+  .auth-spinner {
+    display: none; width: 24px; height: 24px;
+    border: 1px solid var(--dark-border); border-top-color: var(--gold);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  .auth-spinner.show { display: block; }
 
   /* ── エラー画面 ── */
   #error-screen {
@@ -111,17 +188,38 @@
   .section-title { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
   .section-divider { flex: 1; height: 1px; background: var(--dark-border); }
 
+  /* サブセクション */
+  .sub-section {
+    margin: 32px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--dark-border);
+    font-size: 0.72rem; letter-spacing: 0.16em;
+    color: var(--gold); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sub-section::before {
+    content: ''; display: block; width: 4px; height: 4px;
+    background: var(--gold); border-radius: 50; flex-shrink: 0;
+  }
+
   /* フォームグリッド */
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; }
   .form-grid .full { grid-column: 1 / -1; }
   .field { display: flex; flex-direction: column; }
-  .field > label:first-child {
-    font-size: 0.66rem; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--text-secondary); margin-bottom: 7px;
+
+  /* ラベル：明るく・大きく */
+  .field > label:first-child,
+  .field > label.field-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--label-color);
+    margin-bottom: 8px;
+    font-weight: 400;
   }
+
   .req { color: var(--gold); margin-left: 3px; }
-  .opt { color: var(--text-muted); font-size: 0.58rem; margin-left: 5px; letter-spacing: 0.04em; text-transform: none; }
-  .field-note { font-size: 0.66rem; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.04em; }
+  .opt { color: var(--text-muted); font-size: 0.64rem; margin-left: 5px; letter-spacing: 0.04em; text-transform: none; font-weight: 300; }
+  .field-note { font-size: 0.66rem; color: var(--text-secondary); margin-top: 5px; letter-spacing: 0.04em; }
 
   .field input, .field select, .field textarea {
     padding: 13px 14px;
@@ -137,6 +235,9 @@
   }
   .field input::placeholder, .field textarea::placeholder { color: var(--text-muted); font-size: 0.82rem; }
   .field textarea { resize: vertical; min-height: 120px; line-height: 1.7; }
+  .field input:disabled, .field textarea:disabled {
+    opacity: 0.3; cursor: not-allowed;
+  }
 
   /* 出店区分カード */
   .branch-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
@@ -172,6 +273,32 @@
   .check-item input:checked + .check-box { border-color: var(--gold); background: rgba(201,168,76,0.12); }
   .check-item input:checked + .check-box::after { opacity: 1; }
   .check-label { font-size: 0.8rem; color: var(--text-primary); padding-left: 10px; }
+
+  /* 後で回答チェック */
+  .later-check {
+    display: flex; align-items: center; cursor: pointer;
+    user-select: none; margin-top: 8px;
+    padding: 8px 12px; background: rgba(201,168,76,0.03);
+    border: 1px solid var(--dark-border);
+    transition: border-color 0.25s;
+  }
+  .later-check:hover { border-color: rgba(201,168,76,0.3); }
+  .later-check input[type="checkbox"] { display: none; }
+  .later-check-box {
+    width: 16px; height: 16px; border: 1px solid var(--dark-border);
+    background: var(--dark-input); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; transition: border-color 0.25s, background 0.25s;
+  }
+  .later-check-box::after {
+    content: ''; display: block; width: 4px; height: 8px;
+    border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold);
+    transform: rotate(45deg) translate(-1px,-1px); opacity: 0; transition: opacity 0.2s;
+  }
+  .later-check input:checked + .later-check-box { border-color: var(--gold); background: rgba(201,168,76,0.12); }
+  .later-check input:checked + .later-check-box::after { opacity: 1; }
+  .later-check-label { font-size: 0.74rem; color: var(--text-secondary); padding-left: 10px; }
+  .later-check input:checked ~ .later-check-label { color: var(--gold-light); }
+
   .check-other-input {
     margin-top: 8px; padding: 10px 12px;
     background: var(--dark-input); border: 1px solid var(--dark-border);
@@ -207,6 +334,40 @@
   }
   .upload-filename { font-size: 0.7rem; color: var(--gold); margin-top: 8px; }
 
+  /* 書類アップロード */
+  .doc-upload-area {
+    border: 1px dashed var(--dark-border); padding: 22px 20px;
+    text-align: center; cursor: pointer; transition: border-color 0.25s, background 0.25s, opacity 0.25s;
+    background: var(--dark-input);
+  }
+  .doc-upload-area:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .doc-upload-area.has-file { border-color: var(--gold); border-style: solid; }
+  .doc-upload-area input[type="file"] { display: none; }
+  .doc-icon { font-size: 1.4rem; margin-bottom: 8px; color: var(--text-muted); }
+  .doc-text { font-size: 0.72rem; color: var(--text-secondary); }
+  .doc-sub { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; }
+  .doc-filename { font-size: 0.72rem; color: var(--gold); margin-top: 8px; display: none; }
+  .doc-remove {
+    margin-top: 8px; padding: 4px 12px;
+    background: transparent; border: 1px solid #8b2222;
+    color: #c44; font-size: 0.66rem; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; display: none;
+  }
+
+  /* レジカード */
+  .register-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 4px; }
+  .register-card { position: relative; cursor: pointer; }
+  .register-card input[type="radio"] { display: none; }
+  .register-card-inner {
+    padding: 14px 8px; border: 1px solid var(--dark-border);
+    background: var(--dark-input); text-align: center;
+    font-size: 0.76rem; color: var(--text-secondary);
+    transition: border-color 0.25s, background 0.25s, color 0.25s;
+  }
+  .register-card input:checked + .register-card-inner {
+    border-color: var(--gold); background: rgba(201,168,76,0.06); color: var(--gold);
+  }
+
   /* ナビ */
   .form-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--dark-border); gap: 12px; }
   .btn-back {
@@ -237,7 +398,7 @@
   .confirm-section-title:first-child { margin-top: 0; }
   .confirm-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
   .confirm-table tr { border-bottom: 1px solid var(--dark-border); }
-  .confirm-table td:first-child { padding: 10px 12px; width: 38%; font-size: 0.64rem; letter-spacing: 0.1em; color: var(--text-secondary); text-transform: uppercase; vertical-align: top; }
+  .confirm-table td:first-child { padding: 10px 12px; width: 38%; font-size: 0.64rem; letter-spacing: 0.1em; color: var(--text-secondary); vertical-align: top; }
   .confirm-table td:last-child { padding: 10px 12px; font-size: 0.86rem; color: var(--text-primary); word-break: break-all; }
   .confirm-image { max-width: 120px; max-height: 90px; object-fit: cover; border: 1px solid var(--dark-border); margin-top: 4px; }
 
@@ -256,7 +417,83 @@
   .spinner { width: 40px; height: 40px; border: 1px solid var(--dark-border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
   #sending-overlay p { font-size: 0.72rem; letter-spacing: 0.2em; color: var(--text-secondary); text-transform: uppercase; }
 
-  /* バリデーションエラー */
+  /* AI生成パネル */
+  .ai-panel {
+    border: 1px solid rgba(201,168,76,0.25);
+    background: rgba(201,168,76,0.03);
+    padding: 20px; margin-top: 10px;
+    animation: fadeInUp 0.3s ease both;
+  }
+  .ai-panel-title {
+    font-size: 0.64rem; letter-spacing: 0.18em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .ai-panel-title::before {
+    content: '✦'; font-size: 0.6rem;
+  }
+  .ai-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-bottom: 16px; }
+  .ai-input-grid .ai-full { grid-column: 1 / -1; }
+  .ai-field { display: flex; flex-direction: column; gap: 6px; }
+  .ai-field label {
+    font-size: 0.72rem; color: var(--label-color);
+    letter-spacing: 0.06em; font-weight: 400;
+  }
+  .ai-field input, .ai-field select {
+    padding: 10px 12px;
+    background: var(--dark-input); border: 1px solid var(--dark-border);
+    color: var(--text-primary); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px; font-weight: 300; outline: none;
+    transition: border-color 0.25s; appearance: none; -webkit-appearance: none;
+  }
+  .ai-field input:focus, .ai-field select:focus { border-color: var(--gold); }
+  .ai-field input::placeholder { color: var(--text-muted); font-size: 0.78rem; }
+  /* 内装イメージカード */
+  .interior-cards { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+  .interior-card { position: relative; cursor: pointer; }
+  .interior-card input[type="radio"] { display: none; }
+  .interior-card-inner {
+    padding: 10px 6px; border: 1px solid var(--dark-border);
+    background: var(--dark-input); text-align: center;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .interior-card input:checked + .interior-card-inner {
+    border-color: var(--gold); background: rgba(201,168,76,0.08);
+  }
+  .interior-icon { font-size: 1.2rem; display: block; margin-bottom: 5px; }
+  .interior-name {
+    font-size: 0.62rem; color: var(--text-secondary); line-height: 1.4;
+    display: block;
+  }
+  .interior-card input:checked + .interior-card-inner .interior-name { color: var(--gold); }
+  /* AI生成ボタン */
+  .btn-ai-gen {
+    width: 100%; padding: 13px;
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.2em; cursor: pointer;
+    position: relative; overflow: hidden; transition: color 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-ai-gen::before {
+    content: ''; position: absolute; inset: 0; background: var(--gold);
+    transform: translateX(-101%); transition: transform 0.3s; z-index: -1;
+  }
+  .btn-ai-gen:hover { color: var(--dark-bg); }
+  .btn-ai-gen:hover::before { transform: translateX(0); }
+  .btn-ai-gen:disabled { opacity: 0.4; cursor: not-allowed; }
+  .ai-spinner-inline {
+    display: none; width: 14px; height: 14px;
+    border: 1px solid currentColor; border-top-color: transparent;
+    border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  .ai-spinner-inline.show { display: block; }
+  .ai-result-note {
+    font-size: 0.64rem; color: var(--text-secondary);
+    margin-top: 8px; text-align: center; letter-spacing: 0.04em;
+  }
+
+  /* バリデーション */
   .field.error input, .field.error select, .field.error textarea { border-color: #8b2222; }
   .error-msg { font-size: 0.62rem; color: #c44; margin-top: 5px; display: none; }
   .field.error .error-msg { display: block; }
@@ -269,6 +506,10 @@
     .form-grid .full { grid-column: 1; }
     .branch-cards { grid-template-columns: 1fr; }
     .checkbox-group { grid-template-columns: 1fr; }
+    .register-cards { grid-template-columns: repeat(2,1fr); }
+    .interior-cards { grid-template-columns: repeat(3,1fr); }
+    .ai-input-grid { grid-template-columns: 1fr; }
+    .ai-input-grid .ai-full { grid-column: 1; }
     #form-screen { padding: 32px 16px 80px; }
     .btn-next { max-width: none; }
     .confirm-table td:first-child { width: 35%; font-size: 0.6rem; }
@@ -276,6 +517,22 @@
 </style>
 </head>
 <body>
+
+<!-- アクセスコード入力画面 -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">BLOW</div>
+    <div class="auth-subtitle">Casino FC Registration</div>
+    <h2>アクセスコードを入力</h2>
+    <p>本部より発行されたアクセスコードを<br>入力してください。</p>
+    <div class="auth-spinner" id="auth-spinner"></div>
+    <input type="text" class="auth-input" id="auth-code-input"
+      placeholder="アクセスコード" maxlength="12" autocomplete="off"
+      onkeydown="if(event.key==='Enter') verifyCode()">
+    <div class="auth-error" id="auth-error">コードが正しくありません。再度ご確認ください。</div>
+    <button class="btn-auth" id="btn-auth" onclick="verifyCode()">確認する</button>
+  </div>
+</div>
 
 <!-- エラー画面 -->
 <div id="error-screen">
@@ -286,7 +543,7 @@
   </div>
 </div>
 
-<!-- 送信中オーバーレイ -->
+<!-- 送信中 -->
 <div id="sending-overlay">
   <div class="spinner"></div>
   <p>送信中...</p>
@@ -344,14 +601,13 @@
     </div>
   </div>
 
-  <!-- Step 2: 会社情報（初回のみ） -->
+  <!-- Step 2: 会社情報 -->
   <div class="form-section" id="step-1">
     <div class="section-header">
       <span class="section-num">02</span>
       <span class="section-title">会社情報</span>
       <span class="section-divider"></span>
     </div>
-    <!-- 初回用 -->
     <div id="company-full" style="display:none;">
       <div class="form-grid">
         <div class="field full">
@@ -395,7 +651,6 @@
         </div>
       </div>
     </div>
-    <!-- 2店舗目以降用 -->
     <div id="company-second" style="display:none;">
       <div class="form-grid">
         <div class="field full">
@@ -418,6 +673,7 @@
       <span class="section-title">店舗情報</span>
       <span class="section-divider"></span>
     </div>
+
     <div class="form-grid">
       <div class="field full">
         <label>店舗名 <span class="req">*</span></label>
@@ -434,14 +690,21 @@
         <input type="text" id="store-address" placeholder="例：大阪府大阪市北区曽根崎新地 1-8-19 3F">
         <span class="error-msg">店舗住所を入力してください</span>
       </div>
-      <div class="field">
-        <label>店舗電話番号 <span class="req">*</span></label>
-        <input type="tel" id="store-tel" placeholder="未定の場合は「未定」と入力">
-        <span class="error-msg">電話番号を入力してください</span>
+
+      <!-- 店舗電話番号 -->
+      <div class="field full">
+        <label>店舗電話番号 <span class="opt">任意</span></label>
+        <input type="tel" id="store-tel" placeholder="例：06-1234-5678">
+        <label class="later-check" style="margin-top:8px;">
+          <input type="checkbox" id="store-tel-later" onchange="toggleLater('store-tel-later','store-tel')">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">未定のため後で回答する</span>
+        </label>
       </div>
+
       <div class="field full">
         <label>営業時間 <span class="req">*</span></label>
-        <input type="text" id="business-hours" placeholder="例：18:00〜25:00　※曜日別の場合：平日18:00〜25:00 日曜15:00〜23:00">
+        <input type="text" id="business-hours" placeholder="例：18:00〜25:00　※曜日別：平日18:00〜25:00 日曜15:00〜23:00">
         <span class="error-msg">営業時間を入力してください</span>
       </div>
       <div class="field">
@@ -451,7 +714,7 @@
       </div>
       <div class="field">
         <label>OPEN日 <span class="opt">任意</span></label>
-        <input type="text" id="open-date" placeholder="例：2025年4月1日（火）　仮の場合：【仮】2025年4月">
+        <input type="text" id="open-date" placeholder="例：2025年4月1日（火）">
       </div>
       <div class="field full">
         <label>お問い合わせメール送付先 <span class="req">*</span></label>
@@ -460,6 +723,145 @@
         <span class="error-msg">メールアドレスを入力してください</span>
       </div>
     </div>
+
+    <!-- X（旧Twitter） -->
+    <div class="sub-section">X（旧Twitter）情報</div>
+    <label class="later-check" style="margin-bottom:14px;">
+      <input type="checkbox" id="x-later" onchange="toggleLaterGroup('x-later',['x-url','x-id','x-password'])">
+      <span class="later-check-box"></span>
+      <span class="later-check-label">未定のため後で回答する</span>
+    </label>
+    <div class="form-grid">
+      <div class="field full">
+        <label>X（旧Twitter）URL <span class="opt">任意</span></label>
+        <input type="url" id="x-url" placeholder="例：https://x.com/blow_casino">
+      </div>
+      <div class="field">
+        <label>X（旧Twitter）ID <span class="opt">任意</span></label>
+        <input type="text" id="x-id" placeholder="例：@blow_casino" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>X（旧Twitter）パスワード <span class="opt">任意</span></label>
+        <input type="password" id="x-password" placeholder="パスワードを入力" autocomplete="new-password">
+      </div>
+    </div>
+
+    <!-- Instagram -->
+    <div class="sub-section">Instagram情報</div>
+    <label class="later-check" style="margin-bottom:14px;">
+      <input type="checkbox" id="ig-later" onchange="toggleLaterGroup('ig-later',['ig-url','ig-id','ig-password'])">
+      <span class="later-check-box"></span>
+      <span class="later-check-label">未定のため後で回答する</span>
+    </label>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Instagram URL <span class="opt">任意</span></label>
+        <input type="url" id="ig-url" placeholder="例：https://www.instagram.com/blow_casino">
+      </div>
+      <div class="field">
+        <label>Instagram ID <span class="opt">任意</span></label>
+        <input type="text" id="ig-id" placeholder="例：blow_casino" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Instagram パスワード <span class="opt">任意</span></label>
+        <input type="password" id="ig-password" placeholder="パスワードを入力" autocomplete="new-password">
+      </div>
+    </div>
+
+    <!-- 営業許可証 -->
+    <div class="sub-section">営業許可証</div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>飲食店営業許可証 <span class="opt">任意</span></label>
+        <div class="doc-upload-area" id="food-license-area" onclick="document.getElementById('food-license-input').click()">
+          <input type="file" id="food-license-input" accept="image/*,application/pdf" onchange="handleDocUpload(event,'food')">
+          <div class="doc-icon">📄</div>
+          <div class="doc-text">クリックしてファイルを選択</div>
+          <div class="doc-sub">JPG・PNG・PDF対応 / 最大20MB</div>
+          <div class="doc-filename" id="food-filename"></div>
+          <button class="doc-remove" id="food-remove" onclick="removeDoc(event,'food')">✕ 削除</button>
+        </div>
+      </div>
+      <div class="field full">
+        <label>風営法許可証 <span class="opt">任意</span></label>
+        <div class="doc-upload-area" id="wind-license-area" onclick="windLicenseClick(event)">
+          <input type="file" id="wind-license-input" accept="image/*,application/pdf" onchange="handleDocUpload(event,'wind')">
+          <div class="doc-icon">📄</div>
+          <div class="doc-text">クリックしてファイルを選択</div>
+          <div class="doc-sub">JPG・PNG・PDF対応 / 最大20MB</div>
+          <div class="doc-filename" id="wind-filename"></div>
+          <button class="doc-remove" id="wind-remove" onclick="removeDoc(event,'wind')">✕ 削除</button>
+        </div>
+        <label class="later-check" style="margin-top:8px;">
+          <input type="checkbox" id="wind-na" onchange="toggleWindNA()">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">風営法許可は不要です</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- レジ情報 -->
+    <div class="sub-section">レジ情報</div>
+    <label class="later-check" style="margin-bottom:14px;">
+      <input type="checkbox" id="register-later" onchange="toggleLaterGroup('register-later',['register-id','register-password'])">
+      <span class="later-check-box"></span>
+      <span class="later-check-label">未定のため後で回答する</span>
+    </label>
+    <div class="form-grid">
+      <div class="field full">
+        <label>レジ種類 <span class="opt">任意</span></label>
+        <div class="register-cards">
+          <label class="register-card">
+            <input type="radio" name="register-type" value="エアレジ" onchange="onRegisterChange()">
+            <div class="register-card-inner">エアレジ</div>
+          </label>
+          <label class="register-card">
+            <input type="radio" name="register-type" value="スマレジ" onchange="onRegisterChange()">
+            <div class="register-card-inner">スマレジ</div>
+          </label>
+          <label class="register-card">
+            <input type="radio" name="register-type" value="Uレジ" onchange="onRegisterChange()">
+            <div class="register-card-inner">Uレジ</div>
+          </label>
+          <label class="register-card">
+            <input type="radio" name="register-type" value="other" onchange="onRegisterChange()">
+            <div class="register-card-inner">その他</div>
+          </label>
+        </div>
+        <input type="text" class="check-other-input" id="register-other-text" placeholder="レジ名を入力" style="display:none; margin-top:8px;">
+      </div>
+      <div class="field">
+        <label>レジ ログインID <span class="opt">任意</span></label>
+        <input type="text" id="register-id" placeholder="ログインIDを入力" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>レジ パスワード <span class="opt">任意</span></label>
+        <input type="password" id="register-password" placeholder="パスワードを入力" autocomplete="new-password">
+      </div>
+    </div>
+
+    <!-- 監視カメラ -->
+    <div class="sub-section">監視カメラ情報</div>
+    <label class="later-check" style="margin-bottom:14px;">
+      <input type="checkbox" id="camera-later" onchange="toggleLaterGroup('camera-later',['camera-url','camera-id','camera-password'])">
+      <span class="later-check-box"></span>
+      <span class="later-check-label">未定のため後で回答する</span>
+    </label>
+    <div class="form-grid">
+      <div class="field full">
+        <label>管理画面 URL <span class="opt">任意</span></label>
+        <input type="url" id="camera-url" placeholder="例：https://camera.example.com/admin">
+      </div>
+      <div class="field">
+        <label>ログインID <span class="opt">任意</span></label>
+        <input type="text" id="camera-id" placeholder="ログインIDを入力" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>パスワード <span class="opt">任意</span></label>
+        <input type="password" id="camera-password" placeholder="パスワードを入力" autocomplete="new-password">
+      </div>
+    </div>
+
     <div class="form-nav">
       <button class="btn-back" onclick="prevStep(2)">← 戻る</button>
       <button class="btn-next" onclick="nextStep(2)">次へ &nbsp;→</button>
@@ -476,9 +878,86 @@
     <div class="form-grid">
       <div class="field full">
         <label>TOP紹介文 <span class="req">*</span></label>
-        <textarea id="top-intro" placeholder="例：大阪北エリアに73坪の大型店舗オープン。ドリンク飲み放題と、北新地では破格なシステム。広々とした店内と確かなディーリングでお客様を楽しませます。日々の遊びに飽きている方のご来店をお待ちしています。"></textarea>
-        <span class="field-note">公式HPに掲載される店舗紹介文です。簡略化せず正式な内容でご記入ください。</span>
-        <span class="error-msg">TOP紹介文を入力してください</span>
+        <textarea id="top-intro" placeholder="例：大阪北エリアに73坪の大型店舗オープン。ドリンク飲み放題と、北新地では破格なシステム。広々とした店内と確かなディーリングでお客様を楽しませます。"></textarea>
+        <span class="field-note">公式HPに掲載される店舗紹介文です。直接入力するか、下のAI生成をご利用ください。</span>
+
+        <!-- AI生成トグル -->
+        <label class="later-check" style="margin-top:10px;">
+          <input type="checkbox" id="top-intro-ai" onchange="toggleAIPanel()">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">✦ AIに考えてもらう</span>
+        </label>
+
+        <!-- AI生成パネル -->
+        <div class="ai-panel" id="ai-panel" style="display:none;">
+          <div class="ai-panel-title">店舗情報を入力してAIが紹介文を生成します</div>
+          <div class="ai-input-grid">
+            <div class="ai-field ai-full">
+              <label>内装イメージ</label>
+              <div class="interior-cards">
+                <label class="interior-card">
+                  <input type="radio" name="interior" value="ラグジュアリー">
+                  <div class="interior-card-inner">
+                    <span class="interior-icon">💎</span>
+                    <span class="interior-name">ラグジュアリー</span>
+                  </div>
+                </label>
+                <label class="interior-card">
+                  <input type="radio" name="interior" value="モダン">
+                  <div class="interior-card-inner">
+                    <span class="interior-icon">🏙️</span>
+                    <span class="interior-name">モダン</span>
+                  </div>
+                </label>
+                <label class="interior-card">
+                  <input type="radio" name="interior" value="カジュアル">
+                  <div class="interior-card-inner">
+                    <span class="interior-icon">🍹</span>
+                    <span class="interior-name">カジュアル</span>
+                  </div>
+                </label>
+                <label class="interior-card">
+                  <input type="radio" name="interior" value="クラシック">
+                  <div class="interior-card-inner">
+                    <span class="interior-icon">🎩</span>
+                    <span class="interior-name">クラシック</span>
+                  </div>
+                </label>
+                <label class="interior-card">
+                  <input type="radio" name="interior" value="スポーティ">
+                  <div class="interior-card-inner">
+                    <span class="interior-icon">🎯</span>
+                    <span class="interior-name">スポーティ</span>
+                  </div>
+                </label>
+                <label class="interior-card">
+                  <input type="radio" name="interior" value="その他">
+                  <div class="interior-card-inner">
+                    <span class="interior-icon">✏️</span>
+                    <span class="interior-name">その他</span>
+                  </div>
+                </label>
+              </div>
+              <input type="text" class="check-other-input" id="interior-other-text" placeholder="内装イメージを入力" style="display:none; margin-top:8px;">
+
+            </div>
+            <div class="ai-field">
+              <label>エリア・立地</label>
+              <input type="text" id="ai-area" placeholder="例：大阪・北新地、東京・六本木">
+            </div>
+            <div class="ai-field">
+              <label>広さ</label>
+              <input type="text" id="ai-size" placeholder="例：50坪、100㎡">
+            </div>
+          </div>
+          <button class="btn-ai-gen" id="btn-ai-gen" onclick="generateIntro()">
+            <span class="ai-spinner-inline" id="ai-spinner"></span>
+            <span id="ai-gen-label">✦ &nbsp;紹介文を生成する</span>
+          </button>
+          <div class="ai-result-note" id="ai-result-note" style="display:none;">生成されました。上のテキストエリアで編集できます。</div>
+        </div>
+
+        <span class="error-msg" id="err-top-intro">TOP紹介文を入力するか、AI生成をご利用ください</span>
       </div>
       <div class="field full">
         <label>掲載画像 <span class="opt">任意</span></label>
@@ -497,43 +976,15 @@
       <div class="field full">
         <label>ゲーム種類 <span class="req">*</span>（複数選択可）</label>
         <div class="checkbox-group">
-          <label class="check-item">
-            <input type="checkbox" name="games" value="ブラックジャック">
-            <span class="check-box"></span>
-            <span class="check-label">ブラックジャック</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" name="games" value="バカラ">
-            <span class="check-box"></span>
-            <span class="check-label">バカラ</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" name="games" value="ルーレット">
-            <span class="check-box"></span>
-            <span class="check-label">ルーレット</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" name="games" value="ポーカー">
-            <span class="check-box"></span>
-            <span class="check-label">ポーカー</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" name="games" value="スリーカードポーカー">
-            <span class="check-box"></span>
-            <span class="check-label">スリーカードポーカー</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" name="games" value="アルティメットテキサスホールデム">
-            <span class="check-box"></span>
-            <span class="check-label">アルティメットテキサスホールデム</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" name="games" value="other" id="game-other-check">
-            <span class="check-box"></span>
-            <span class="check-label">その他</span>
-          </label>
+          <label class="check-item"><input type="checkbox" name="games" value="ブラックジャック"><span class="check-box"></span><span class="check-label">ブラックジャック</span></label>
+          <label class="check-item"><input type="checkbox" name="games" value="バカラ"><span class="check-box"></span><span class="check-label">バカラ</span></label>
+          <label class="check-item"><input type="checkbox" name="games" value="ルーレット"><span class="check-box"></span><span class="check-label">ルーレット</span></label>
+          <label class="check-item"><input type="checkbox" name="games" value="ポーカー"><span class="check-box"></span><span class="check-label">ポーカー</span></label>
+          <label class="check-item"><input type="checkbox" name="games" value="スリーカードポーカー"><span class="check-box"></span><span class="check-label">スリーカードポーカー</span></label>
+          <label class="check-item"><input type="checkbox" name="games" value="アルティメットテキサスホールデム"><span class="check-box"></span><span class="check-label">アルティメットテキサスホールデム</span></label>
+          <label class="check-item"><input type="checkbox" name="games" value="other" id="game-other-check"><span class="check-box"></span><span class="check-label">その他</span></label>
         </div>
-        <input type="text" class="check-other-input" id="game-other-text" placeholder="その他のゲーム名を入力" style="display:none;" oninput="">
+        <input type="text" class="check-other-input" id="game-other-text" placeholder="その他のゲーム名を入力" style="display:none;">
         <span class="error-msg" id="err-games">ゲーム種類を1つ以上選択してください</span>
       </div>
     </div>
@@ -567,11 +1018,7 @@
 <div id="complete-screen">
   <div class="complete-icon">✓</div>
   <h2>送信が完了しました</h2>
-  <p>
-    ご入力ありがとうございます。<br>
-    本部へ通知が送信されました。<br><br>
-    修正・追記が必要な場合は、<br>同じURLから再アクセスしてください。
-  </p>
+  <p>ご入力ありがとうございます。<br>本部へ通知が送信されました。<br><br>修正・追記が必要な場合は、<br>同じURLから再アクセスしてください。</p>
   <button class="btn-reopen" onclick="location.reload()">追記・修正する</button>
 </div>
 
@@ -580,8 +1027,6 @@
 // 設定
 // ══════════════════════
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVCqeV69S2f12eJZ2Ax-dpIl3GA5lYB2ColOUc81wuP8WOy0Ey5PR65KrXNdnMBmlU1A/exec';
-
-// ステップラベル（分岐で動的に変わる）
 const STEP_LABELS = ['出店区分', '会社情報', '店舗情報', '掲載情報', '確認・送信'];
 const TOTAL_STEPS = 5;
 
@@ -590,81 +1035,243 @@ const TOTAL_STEPS = 5;
 // ══════════════════════
 const params    = new URLSearchParams(location.search);
 const storeCode = params.get('store') || '';
-let imageBase64 = '';
-let imageFileName = '';
+let imageBase64 = '', imageFileName = '';
+let foodBase64 = '', foodFileName = '';
+let windBase64 = '', windFileName = '';
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!storeCode) {
     document.getElementById('error-screen').classList.add('show');
     return;
   }
-  document.getElementById('store-badge').textContent = 'Store: ' + storeCode;
-  document.getElementById('form-screen').classList.add('show');
-  buildProgressBar();
-  restoreData(storeCode);
-
-  // その他ゲームチェック連動
+  document.getElementById('auth-screen').classList.add('show');
   document.getElementById('game-other-check').addEventListener('change', function() {
     document.getElementById('game-other-text').style.display = this.checked ? 'block' : 'none';
+  });
+  // 内装イメージ「その他」連動
+  document.querySelectorAll('input[name="interior"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const show = document.querySelector('input[name="interior"]:checked')?.value === 'その他';
+      document.getElementById('interior-other-text').style.display = show ? 'block' : 'none';
+    });
   });
 });
 
 // ══════════════════════
-// プログレスバー生成
+// アクセスコード認証
+// ══════════════════════
+async function verifyCode() {
+  const code   = document.getElementById('auth-code-input').value.trim();
+  if (!code) return;
+  const btn    = document.getElementById('btn-auth');
+  const spinner= document.getElementById('auth-spinner');
+  const errEl  = document.getElementById('auth-error');
+  const input  = document.getElementById('auth-code-input');
+  btn.disabled = true;
+  spinner.classList.add('show');
+  errEl.classList.remove('show');
+  input.classList.remove('error');
+  try {
+    const res  = await fetch(`${GAS_URL}?store=${encodeURIComponent(storeCode)}&code=${encodeURIComponent(code)}`);
+    const json = await res.json();
+    if (json.status === 'authorized') {
+      document.getElementById('auth-screen').classList.remove('show');
+      document.getElementById('store-badge').textContent = 'Store: ' + storeCode;
+      document.getElementById('form-screen').classList.add('show');
+      buildProgressBar();
+      if (json.data) restoreFields(json.data);
+      else           restoreLocal(storeCode);
+    } else {
+      input.classList.add('error');
+      errEl.textContent = 'コードが正しくありません。再度ご確認ください。';
+      errEl.classList.add('show');
+      btn.disabled = false; spinner.classList.remove('show');
+    }
+  } catch(err) {
+    errEl.textContent = '通信エラーが発生しました。通信環境をご確認ください。';
+    errEl.classList.add('show');
+    btn.disabled = false; spinner.classList.remove('show');
+  }
+}
+
+// ══════════════════════
+// プログレスバー
 // ══════════════════════
 function buildProgressBar() {
-  const bar = document.getElementById('progress-bar');
-  const labels = document.getElementById('progress-labels');
-  bar.innerHTML = STEP_LABELS.map((_, i) =>
-    `<div class="progress-step${i === 0 ? ' active' : ''}" id="ps-${i}"></div>`
-  ).join('');
-  labels.innerHTML = STEP_LABELS.map((lbl, i) =>
-    `<span id="lbl-${i}"${i === 0 ? ' class="active"' : ''}>${lbl}</span>`
-  ).join('');
+  document.getElementById('progress-bar').innerHTML =
+    STEP_LABELS.map((_,i) => `<div class="progress-step${i===0?' active':''}" id="ps-${i}"></div>`).join('');
+  document.getElementById('progress-labels').innerHTML =
+    STEP_LABELS.map((l,i) => `<span id="lbl-${i}"${i===0?' class="active"':''}>${l}</span>`).join('');
 }
 
 // ══════════════════════
-// 出店区分変更
+// 出店区分
 // ══════════════════════
 function onBranchChange() {
-  const val = getSelectedBranch();
-  document.getElementById('company-full').style.display   = val === 'first'  ? 'block' : 'none';
-  document.getElementById('company-second').style.display = val === 'second' ? 'block' : 'none';
+  const v = getSelectedBranch();
+  document.getElementById('company-full').style.display   = v==='first'  ? 'block':'none';
+  document.getElementById('company-second').style.display = v==='second' ? 'block':'none';
+}
+function getSelectedBranch() {
+  return document.querySelector('input[name="branch-type"]:checked')?.value || '';
 }
 
-function getSelectedBranch() {
-  const r = document.querySelector('input[name="branch-type"]:checked');
-  return r ? r.value : '';
+// ══════════════════════
+// 後で回答トグル
+// ══════════════════════
+function toggleLater(chkId, targetId) {
+  const chk = document.getElementById(chkId).checked;
+  const el  = document.getElementById(targetId);
+  if (!el) return;
+  el.disabled = chk;
+  if (chk) { el._saved = el.value; el.value = '【後で回答】'; }
+  else      { el.value = el._saved || ''; }
+}
+function toggleLaterGroup(chkId, ids) {
+  const chk = document.getElementById(chkId).checked;
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = chk;
+    if (chk) { el._saved = el.value; el.value = '【後で回答】'; }
+    else      { el.value = el._saved || ''; }
+  });
+}
+
+// ══════════════════════
+// 風営法不要トグル
+// ══════════════════════
+function toggleWindNA() {
+  const chk  = document.getElementById('wind-na').checked;
+  const area = document.getElementById('wind-license-area');
+  area.style.opacity       = chk ? '0.35' : '1';
+  area.style.pointerEvents = chk ? 'none'  : 'auto';
+  if (chk) { windBase64 = '【不要】'; windFileName = '【不要】'; }
+  else      { windBase64 = ''; windFileName = ''; }
+}
+function windLicenseClick(e) {
+  if (!document.getElementById('wind-na').checked)
+    document.getElementById('wind-license-input').click();
+}
+
+// ══════════════════════
+// AI紹介文パネルトグル
+// ══════════════════════
+function toggleAIPanel() {
+  const chk    = document.getElementById('top-intro-ai').checked;
+  const panel  = document.getElementById('ai-panel');
+  const ta     = document.getElementById('top-intro');
+  panel.style.display = chk ? 'block' : 'none';
+  // AI生成チェック時はテキストエリアをクリア・編集可能のまま
+  if (!chk) document.getElementById('ai-result-note').style.display = 'none';
+  document.getElementById('err-top-intro').style.display = 'none';
+}
+
+// ══════════════════════
+// AI紹介文生成
+// ══════════════════════
+async function generateIntro() {
+  const btn      = document.getElementById('btn-ai-gen');
+  const spinner  = document.getElementById('ai-spinner');
+  const label    = document.getElementById('ai-gen-label');
+  const note     = document.getElementById('ai-result-note');
+  const ta       = document.getElementById('top-intro');
+
+  let interior = document.querySelector('input[name="interior"]:checked')?.value || '';
+  if (interior === 'その他') {
+    const other = document.getElementById('interior-other-text').value.trim();
+    interior = other ? other : 'その他';
+  }
+  const area     = document.getElementById('ai-area').value.trim();
+  const size     = document.getElementById('ai-size').value.trim();
+  const storeName= document.getElementById('store-name').value.trim();
+  const games    = getCheckedGames().join('・');
+  const hours    = document.getElementById('business-hours').value.trim();
+
+  btn.disabled  = true;
+  spinner.classList.add('show');
+  label.textContent = '生成中...';
+  note.style.display = 'none';
+
+  const prompt = `あなたはアミューズメントカジノバー「BLOW」のフランチャイズ店舗の公式HPに掲載する店舗紹介文を書くライターです。
+以下の店舗情報をもとに、魅力的なTOP紹介文を日本語で150〜200文字程度で作成してください。
+
+【店舗情報】
+- 店舗名：${storeName || 'BLOW（店舗名未定）'}
+- エリア・立地：${area || '未記入'}
+- 広さ：${size || '未記入'}
+- 内装イメージ：${interior || '未選択'}
+- 提供ゲーム：${games || '未選択'}
+- 営業時間：${hours || '未記入'}
+
+【条件】
+- 「アミューズメントカジノ」「カジノバー」などの業態をさりげなく含める
+- 内装イメージのキーワードを雰囲気として活かす
+- 来店を促す言葉で締める
+- 文体は丁寧だが親しみやすく
+- 紹介文本文のみを出力し、前置きや説明は不要`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '';
+    if (text) {
+      ta.value = text.trim();
+      note.style.display = 'block';
+      document.getElementById('err-top-intro').style.display = 'none';
+    } else {
+      alert('生成に失敗しました。再度お試しください。');
+    }
+  } catch(err) {
+    alert('通信エラーが発生しました。\n' + err.message);
+  } finally {
+    btn.disabled  = false;
+    spinner.classList.remove('show');
+    label.textContent = '✦ \u00a0紹介文を再生成する';
+  }
+}
+
+// ══════════════════════
+// レジ種類
+// ══════════════════════
+function onRegisterChange() {
+  const v = document.querySelector('input[name="register-type"]:checked')?.value;
+  document.getElementById('register-other-text').style.display = v==='other' ? 'block':'none';
 }
 
 // ══════════════════════
 // ステップ制御
 // ══════════════════════
 let currentStep = 0;
-
 function nextStep(from) {
   if (!validateStep(from)) return;
-  document.getElementById('step-' + from).classList.remove('active');
-  currentStep = from + 1;
-  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('step-'+from).classList.remove('active');
+  currentStep = from+1;
+  document.getElementById('step-'+currentStep).classList.add('active');
   updateProgress();
-  if (currentStep === 4) buildConfirmContent();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (currentStep===4) buildConfirmContent();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-
 function prevStep(from) {
-  if (from <= 0) return;
-  document.getElementById('step-' + from).classList.remove('active');
-  currentStep = from - 1;
-  document.getElementById('step-' + currentStep).classList.add('active');
+  if (from<=0) return;
+  document.getElementById('step-'+from).classList.remove('active');
+  currentStep = from-1;
+  document.getElementById('step-'+currentStep).classList.add('active');
   updateProgress();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-
 function updateProgress() {
-  for (let i = 0; i < TOTAL_STEPS; i++) {
-    document.getElementById('ps-' + i)?.classList.toggle('active', i <= currentStep);
-    document.getElementById('lbl-' + i)?.classList.toggle('active', i === currentStep);
+  for (let i=0;i<TOTAL_STEPS;i++) {
+    document.getElementById('ps-'+i)?.classList.toggle('active', i<=currentStep);
+    document.getElementById('lbl-'+i)?.classList.toggle('active', i===currentStep);
   }
 }
 
@@ -673,239 +1280,199 @@ function updateProgress() {
 // ══════════════════════
 function validateStep(step) {
   let ok = true;
-
-  if (step === 0) {
-    if (!getSelectedBranch()) {
-      document.getElementById('err-branch').style.display = 'block';
-      ok = false;
-    } else {
-      document.getElementById('err-branch').style.display = 'none';
-    }
+  if (step===0) {
+    const show = !getSelectedBranch();
+    document.getElementById('err-branch').style.display = show ? 'block':'none';
+    if (show) ok = false;
   }
-
-  if (step === 1) {
-    const branch = getSelectedBranch();
-    if (branch === 'first') {
-      ok = checkRequired([
-        ['company-name',    '運営会社名を入力してください'],
-        ['invoice-email',   'メールアドレスを入力してください'],
-        ['company-zip',     '郵便番号を入力してください'],
-        ['company-address', '会社住所を入力してください'],
-        ['company-tel',     '電話番号を入力してください'],
-        ['contact-name',    '担当者名を入力してください'],
-      ]);
-    } else {
-      ok = checkRequired([['company-name-2', '運営会社名を入力してください']]);
-    }
+  if (step===1) {
+    ok = getSelectedBranch()==='first'
+      ? checkRequired([['company-name','運営会社名を入力してください'],['invoice-email','メールアドレスを入力してください'],['company-zip','郵便番号を入力してください'],['company-address','会社住所を入力してください'],['company-tel','電話番号を入力してください'],['contact-name','担当者名を入力してください']])
+      : checkRequired([['company-name-2','運営会社名を入力してください']]);
   }
-
-  if (step === 2) {
-    ok = checkRequired([
-      ['store-name',    '店舗名を入力してください'],
-      ['store-zip',     '郵便番号を入力してください'],
-      ['store-address', '店舗住所を入力してください'],
-      ['store-tel',     '電話番号を入力してください'],
-      ['business-hours','営業時間を入力してください'],
-      ['closed-days',   '定休日を入力してください'],
-      ['inquiry-email', 'メールアドレスを入力してください'],
-    ]);
+  if (step===2) {
+    ok = checkRequired([['store-name','店舗名を入力してください'],['store-zip','郵便番号を入力してください'],['store-address','店舗住所を入力してください'],['business-hours','営業時間を入力してください'],['closed-days','定休日を入力してください'],['inquiry-email','メールアドレスを入力してください']]);
   }
-
-  if (step === 3) {
-    ok = checkRequired([['top-intro', 'TOP紹介文を入力してください']]);
+  if (step===3) {
+    const intro= document.getElementById('top-intro').value.trim();
+    if (!intro) { document.getElementById('err-top-intro').style.display='block'; ok=false; }
+    else        { document.getElementById('err-top-intro').style.display='none'; }
     const games = getCheckedGames();
-    if (games.length === 0) {
-      document.getElementById('err-games').style.display = 'block';
-      ok = false;
-    } else {
-      document.getElementById('err-games').style.display = 'none';
-    }
+    if (!games.length) { document.getElementById('err-games').style.display='block'; ok=false; }
+    else               { document.getElementById('err-games').style.display='none'; }
   }
-
   return ok;
 }
-
 function checkRequired(fields) {
   let ok = true;
-  fields.forEach(([id, msg]) => {
-    const el = document.getElementById(id);
+  fields.forEach(([id,msg]) => {
+    const el    = document.getElementById(id);
     if (!el) return;
     const field = el.closest('.field');
-    const errMsg = field?.querySelector('.error-msg');
+    const errEl = field?.querySelector('.error-msg');
     if (!el.value.trim()) {
       field?.classList.add('error');
-      if (errMsg) errMsg.textContent = msg;
+      if (errEl) errEl.textContent = msg;
       ok = false;
-    } else {
-      field?.classList.remove('error');
-    }
-    el.addEventListener('input', () => {
-      if (el.value.trim()) field?.classList.remove('error');
-    }, { once: false });
+    } else { field?.classList.remove('error'); }
+    el.addEventListener('input', () => { if(el.value.trim()) field?.classList.remove('error'); });
   });
   return ok;
 }
-
 function getCheckedGames() {
-  const checked = [...document.querySelectorAll('input[name="games"]:checked')];
-  return checked.map(c => {
-    if (c.value === 'other') {
-      const txt = document.getElementById('game-other-text').value.trim();
-      return txt ? 'その他：' + txt : 'その他';
+  return [...document.querySelectorAll('input[name="games"]:checked')].map(c => {
+    if (c.value==='other') {
+      const t = document.getElementById('game-other-text').value.trim();
+      return t ? 'その他：'+t : 'その他';
     }
     return c.value;
   });
 }
 
 // ══════════════════════
-// 画像アップロード
+// 掲載画像アップロード
 // ══════════════════════
 function handleImageUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 10 * 1024 * 1024) {
-    alert('ファイルサイズが10MBを超えています。');
-    return;
-  }
+  if (file.size > 10*1024*1024) { alert('ファイルサイズが10MBを超えています。'); return; }
   imageFileName = file.name;
   const reader = new FileReader();
-  reader.onload = (ev) => {
+  reader.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      // リサイズ処理（長辺1200px・品質80%）
-      const MAX = 1200;
-      let w = img.width, h = img.height;
-      if (w > MAX || h > MAX) {
-        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-        else       { w = Math.round(w * MAX / h); h = MAX; }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
-      // プレビュー表示
-      const preview = document.getElementById('upload-preview');
+      const MAX=1200; let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){ if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+      const c=document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      imageBase64 = c.toDataURL('image/jpeg',0.8);
       document.getElementById('preview-img').src = imageBase64;
-      preview.style.display = 'block';
-      document.getElementById('upload-filename').textContent = imageFileName;
+      document.getElementById('upload-preview').style.display='block';
+      document.getElementById('upload-filename').textContent=imageFileName;
       document.getElementById('upload-area').classList.add('has-file');
     };
-    img.src = ev.target.result;
+    img.src=ev.target.result;
   };
-  reader.readAsDataURL(file);
-  e.stopPropagation();
+  reader.readAsDataURL(file); e.stopPropagation();
+}
+function removeImage(e) {
+  e.stopPropagation(); imageBase64=''; imageFileName='';
+  document.getElementById('upload-input').value='';
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('upload-filename').textContent='';
+  document.getElementById('upload-area').classList.remove('has-file');
 }
 
-function removeImage(e) {
+// ══════════════════════
+// 書類アップロード
+// ══════════════════════
+function handleDocUpload(e, type) {
+  const file=e.target.files[0];
+  if (!file) return;
+  if (file.size>20*1024*1024) { alert('ファイルサイズが20MBを超えています。'); return; }
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const b64=ev.target.result, name=file.name;
+    if(type==='food'){foodBase64=b64;foodFileName=name;}
+    else             {windBase64=b64;windFileName=name;}
+    document.getElementById(type+'-filename').textContent=name;
+    document.getElementById(type+'-filename').style.display='block';
+    document.getElementById(type+'-remove').style.display='inline-block';
+    document.getElementById(type==='food'?'food-license-area':'wind-license-area').classList.add('has-file');
+  };
+  reader.readAsDataURL(file); e.stopPropagation();
+}
+function removeDoc(e,type) {
   e.stopPropagation();
-  imageBase64 = '';
-  imageFileName = '';
-  document.getElementById('upload-input').value = '';
-  document.getElementById('upload-preview').style.display = 'none';
-  document.getElementById('upload-filename').textContent = '';
-  document.getElementById('upload-area').classList.remove('has-file');
+  if(type==='food'){foodBase64='';foodFileName='';}
+  else             {windBase64='';windFileName='';}
+  document.getElementById(type+'-license-input').value='';
+  document.getElementById(type+'-filename').style.display='none';
+  document.getElementById(type+'-remove').style.display='none';
+  document.getElementById(type==='food'?'food-license-area':'wind-license-area').classList.remove('has-file');
 }
 
 // ══════════════════════
 // 確認画面生成
 // ══════════════════════
 function buildConfirmContent() {
-  const branch = getSelectedBranch();
-  let html = '';
-
-  // 会社情報
-  html += '<div class="confirm-section-title">会社情報</div>';
-  if (branch === 'first') {
-    html += buildTable([
-      ['運営会社名',      v('company-name')],
-      ['法人番号',        v('corporate-number')],
-      ['請求書送付先',    v('invoice-email')],
-      ['会社郵便番号',    v('company-zip')],
-      ['会社住所',        v('company-address')],
-      ['会社電話番号',    v('company-tel')],
-      ['担当者名',        v('contact-name')],
-      ['会社HP',         v('company-url')],
-    ]);
-  } else {
-    html += buildTable([['運営会社名', v('company-name-2')]]);
-  }
-
-  // 店舗情報
-  html += '<div class="confirm-section-title">店舗情報</div>';
-  html += buildTable([
-    ['店舗名',          v('store-name')],
-    ['店舗郵便番号',    v('store-zip')],
-    ['店舗住所',        v('store-address')],
-    ['店舗電話番号',    v('store-tel')],
-    ['営業時間',        v('business-hours')],
-    ['定休日',          v('closed-days')],
-    ['OPEN日',         v('open-date')],
-    ['問い合わせ先',    v('inquiry-email')],
-  ]);
-
-  // 掲載情報
-  html += '<div class="confirm-section-title">掲載情報</div>';
-  const games = getCheckedGames();
-  let imgHtml = '';
-  if (imageBase64) {
-    imgHtml = `<img src="${imageBase64}" class="confirm-image" alt="掲載画像"><br><span style="font-size:0.72rem;color:var(--text-muted);">${imageFileName}</span>`;
-  }
-  html += buildTable([
-    ['TOP紹介文',   `<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],
-    ['掲載画像',    imgHtml || '<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],
-    ['ゲーム種類',  games.length ? games.join('、') : '<span style="color:var(--text-muted);font-size:0.78rem;">未選択</span>'],
-  ], true);
-
-  document.getElementById('confirm-content').innerHTML = html;
+  const branch=getSelectedBranch();
+  const xL =document.getElementById('x-later').checked;
+  const igL=document.getElementById('ig-later').checked;
+  const rL =document.getElementById('register-later').checked;
+  const cL =document.getElementById('camera-later').checked;
+  const tL =document.getElementById('store-tel-later').checked;
+  const wNA=document.getElementById('wind-na').checked;
+  const regType=document.querySelector('input[name="register-type"]:checked')?.value||'';
+  const regLabel=regType==='other'?('その他：'+(document.getElementById('register-other-text').value.trim()||'')):regType;
+  const games=getCheckedGames();
+  let html='';
+  html+='<div class="confirm-section-title">会社情報</div>';
+  if(branch==='first') html+=buildTable([['運営会社名',v('company-name')],['法人番号',v('corporate-number')],['請求書送付先',v('invoice-email')],['会社郵便番号',v('company-zip')],['会社住所',v('company-address')],['会社電話番号',v('company-tel')],['担当者名',v('contact-name')],['会社HP',v('company-url')]]);
+  else html+=buildTable([['運営会社名',v('company-name-2')]]);
+  html+='<div class="confirm-section-title">店舗情報</div>';
+  html+=buildTable([['店舗名',v('store-name')],['店舗郵便番号',v('store-zip')],['店舗住所',v('store-address')],['店舗電話番号',tL?'【後で回答】':v('store-tel')],['営業時間',v('business-hours')],['定休日',v('closed-days')],['OPEN日',v('open-date')],['問い合わせ先',v('inquiry-email')]]);
+  html+='<div class="confirm-section-title">SNS情報</div>';
+  html+=buildTable([['X URL',xL?'【後で回答】':v('x-url')],['X ID',xL?'【後で回答】':v('x-id')],['X PW',xL?'【後で回答】':(v('x-password')?'••••••••':'')],['Instagram URL',igL?'【後で回答】':v('ig-url')],['Instagram ID',igL?'【後で回答】':v('ig-id')],['Instagram PW',igL?'【後で回答】':(v('ig-password')?'••••••••':'')]]);
+  html+='<div class="confirm-section-title">営業許可証</div>';
+  html+=buildTable([['飲食店営業許可証',foodFileName||'未登録'],['風営法許可証',wNA?'【不要】':(windFileName||'未登録')]]);
+  html+='<div class="confirm-section-title">レジ情報</div>';
+  html+=buildTable([['レジ種類',rL?'【後で回答】':regLabel],['ログインID',rL?'【後で回答】':v('register-id')],['パスワード',rL?'【後で回答】':(v('register-password')?'••••••••':'')]]);
+  html+='<div class="confirm-section-title">監視カメラ情報</div>';
+  html+=buildTable([['管理画面URL',cL?'【後で回答】':v('camera-url')],['ログインID',cL?'【後で回答】':v('camera-id')],['パスワード',cL?'【後で回答】':(v('camera-password')?'••••••••':'')]]);
+  const imgHtml=imageBase64?`<img src="${imageBase64}" class="confirm-image" alt="掲載画像"><br><span style="font-size:0.72rem;color:var(--text-muted);">${imageFileName}</span>`:'';
+  html+='<div class="confirm-section-title">掲載情報</div>';
+  html+=buildTable([['TOP紹介文',`<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
+  document.getElementById('confirm-content').innerHTML=html;
 }
-
-function buildTable(rows, raw = false) {
-  return '<table class="confirm-table">' +
-    rows.filter(([,val]) => val !== undefined).map(([k, val]) =>
-      `<tr><td>${k}</td><td>${raw ? val : escHtml(val || '')}</td></tr>`
-    ).join('') + '</table>';
+function buildTable(rows,raw=false) {
+  return '<table class="confirm-table">'+rows.filter(([,val])=>val!==undefined).map(([k,val])=>`<tr><td>${k}</td><td>${raw?val:escHtml(val||'')}</td></tr>`).join('')+'</table>';
 }
-
-function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
-
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-}
+function v(id){ return document.getElementById(id)?.value?.trim()||''; }
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
 // ══════════════════════
 // データ収集
 // ══════════════════════
 function gatherData() {
-  const branch = getSelectedBranch();
+  const branch=getSelectedBranch();
+  const xL =document.getElementById('x-later').checked;
+  const igL=document.getElementById('ig-later').checked;
+  const rL =document.getElementById('register-later').checked;
+  const cL =document.getElementById('camera-later').checked;
+  const tL =document.getElementById('store-tel-later').checked;
+  const wNA=document.getElementById('wind-na').checked;
+  const regType=document.querySelector('input[name="register-type"]:checked')?.value||'';
+  const regLabel=regType==='other'?('その他：'+(document.getElementById('register-other-text').value.trim()||'')):regType;
   return {
-    store: storeCode,
-    timestamp: new Date().toISOString(),
-    branchType: branch === 'first' ? '初めてのご出店' : '2店舗目以降のご出店',
-    // 会社情報
-    companyName:     branch === 'first' ? v('company-name')    : v('company-name-2'),
-    corporateNumber: branch === 'first' ? v('corporate-number') : '',
-    invoiceEmail:    branch === 'first' ? v('invoice-email')    : '',
-    companyZip:      branch === 'first' ? v('company-zip')      : '',
-    companyAddress:  branch === 'first' ? v('company-address')  : '',
-    companyTel:      branch === 'first' ? v('company-tel')      : '',
-    contactName:     branch === 'first' ? v('contact-name')     : '',
-    companyUrl:      branch === 'first' ? v('company-url')      : '',
-    // 店舗情報
-    storeName:      v('store-name'),
-    storeZip:       v('store-zip'),
-    storeAddress:   v('store-address'),
-    storeTel:       v('store-tel'),
-    businessHours:  v('business-hours'),
-    closedDays:     v('closed-days'),
-    openDate:       v('open-date'),
-    inquiryEmail:   v('inquiry-email'),
-    // 掲載情報
-    topIntro:       v('top-intro'),
-    games:          getCheckedGames().join('、'),
-    imageBase64:    imageBase64,
-    imageFileName:  imageFileName,
-    // 備考
-    remarks: v('remarks'),
+    store:storeCode, timestamp:new Date().toISOString(),
+    branchType:branch==='first'?'初めてのご出店':'2店舗目以降のご出店',
+    companyName:    branch==='first'?v('company-name')    :v('company-name-2'),
+    corporateNumber:branch==='first'?v('corporate-number'):'',
+    invoiceEmail:   branch==='first'?v('invoice-email')   :'',
+    companyZip:     branch==='first'?v('company-zip')     :'',
+    companyAddress: branch==='first'?v('company-address') :'',
+    companyTel:     branch==='first'?v('company-tel')     :'',
+    contactName:    branch==='first'?v('contact-name')    :'',
+    companyUrl:     branch==='first'?v('company-url')     :'',
+    storeName:v('store-name'), storeZip:v('store-zip'), storeAddress:v('store-address'),
+    storeTel:tL?'【後で回答】':v('store-tel'),
+    businessHours:v('business-hours'), closedDays:v('closed-days'),
+    openDate:v('open-date'), inquiryEmail:v('inquiry-email'),
+    xUrl:xL?'【後で回答】':v('x-url'), xId:xL?'【後で回答】':v('x-id'), xPassword:xL?'【後で回答】':v('x-password'),
+    igUrl:igL?'【後で回答】':v('ig-url'), igId:igL?'【後で回答】':v('ig-id'), igPassword:igL?'【後で回答】':v('ig-password'),
+    foodLicenseBase64:foodBase64, foodLicenseFileName:foodFileName,
+    windLicenseBase64:wNA?'【不要】':windBase64, windLicenseFileName:wNA?'【不要】':windFileName,
+    registerType:rL?'【後で回答】':regLabel,
+    registerId:rL?'【後で回答】':v('register-id'),
+    registerPassword:rL?'【後で回答】':v('register-password'),
+    cameraUrl:cL?'【後で回答】':v('camera-url'),
+    cameraId:cL?'【後で回答】':v('camera-id'),
+    cameraPassword:cL?'【後で回答】':v('camera-password'),
+    topIntro:v('top-intro'),
+    games:getCheckedGames().join('、'),
+    imageBase64, imageFileName,
+    remarks:v('remarks'),
   };
 }
 
@@ -913,85 +1480,86 @@ function gatherData() {
 // 送信
 // ══════════════════════
 async function submitForm() {
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true;
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;
   document.getElementById('sending-overlay').classList.add('show');
-  const data = gatherData();
-  try { localStorage.setItem('blow_fc_' + storeCode, JSON.stringify(data)); } catch(e) {}
+  const data=gatherData();
+  try { localStorage.setItem('blow_fc_'+storeCode, JSON.stringify(data)); } catch(e){}
   try {
-    await fetch(GAS_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
+    await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
     document.getElementById('sending-overlay').classList.remove('show');
     document.getElementById('form-screen').classList.remove('show');
     document.getElementById('complete-screen').classList.add('show');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({top:0,behavior:'smooth'});
   } catch(err) {
     document.getElementById('sending-overlay').classList.remove('show');
-    btn.disabled = false;
-    alert('送信エラーが発生しました。\n通信環境を確認して再度お試しください。\n\n' + err.message);
+    btn.disabled=false;
+    alert('送信エラーが発生しました。\n通信環境を確認して再度お試しください。\n\n'+err.message);
   }
 }
 
 // ══════════════════════
-// 過去データ復元
+// データ復元
 // ══════════════════════
-function restoreData(code) {
-  try {
-    const saved = localStorage.getItem('blow_fc_' + code);
-    if (!saved) return;
-    const d = JSON.parse(saved);
-    // 出店区分
-    if (d.branchType) {
-      const val = d.branchType.includes('初めて') ? 'first' : 'second';
-      const radio = document.querySelector(`input[name="branch-type"][value="${val}"]`);
-      if (radio) { radio.checked = true; onBranchChange(); }
-    }
-    const map = {
-      'company-name': d.companyName, 'company-name-2': d.companyName,
-      'corporate-number': d.corporateNumber, 'invoice-email': d.invoiceEmail,
-      'company-zip': d.companyZip, 'company-address': d.companyAddress,
-      'company-tel': d.companyTel, 'contact-name': d.contactName,
-      'company-url': d.companyUrl,
-      'store-name': d.storeName, 'store-zip': d.storeZip,
-      'store-address': d.storeAddress, 'store-tel': d.storeTel,
-      'business-hours': d.businessHours, 'closed-days': d.closedDays,
-      'open-date': d.openDate, 'inquiry-email': d.inquiryEmail,
-      'top-intro': d.topIntro, 'remarks': d.remarks,
-    };
-    Object.entries(map).forEach(([id, val]) => {
-      const el = document.getElementById(id);
-      if (el && val) el.value = val;
+function restoreLocal(code) {
+  try { const s=localStorage.getItem('blow_fc_'+code); if(s) restoreFields(JSON.parse(s)); } catch(e){}
+}
+function restoreFields(d) {
+  if (!d) return;
+  if (d.branchType) {
+    const val=d.branchType.includes('初めて')?'first':'second';
+    const r=document.querySelector(`input[name="branch-type"][value="${val}"]`);
+    if(r){r.checked=true;onBranchChange();}
+  }
+  const map={
+    'company-name':d.companyName,'company-name-2':d.companyName,
+    'corporate-number':d.corporateNumber,'invoice-email':d.invoiceEmail,
+    'company-zip':d.companyZip,'company-address':d.companyAddress,
+    'company-tel':d.companyTel,'contact-name':d.contactName,'company-url':d.companyUrl,
+    'store-name':d.storeName,'store-zip':d.storeZip,'store-address':d.storeAddress,
+    'business-hours':d.businessHours,'closed-days':d.closedDays,
+    'open-date':d.openDate,'inquiry-email':d.inquiryEmail,
+    'x-url':d.xUrl,'x-id':d.xId,
+    'ig-url':d.igUrl,'ig-id':d.igId,
+    'camera-url':d.cameraUrl,'camera-id':d.cameraId,
+    'register-id':d.registerId,
+    'top-intro': d.topIntro || '',
+    'remarks':d.remarks,
+  };
+  Object.entries(map).forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(el&&val&&val!=='【後で回答】') el.value=val;
+  });
+  // 後で回答フラグ
+  if(d.storeTel==='【後で回答】'){document.getElementById('store-tel-later').checked=true;toggleLater('store-tel-later','store-tel');}
+  else if(d.storeTel){const e=document.getElementById('store-tel');if(e)e.value=d.storeTel;}
+  if(d.xUrl==='【後で回答】'){document.getElementById('x-later').checked=true;toggleLaterGroup('x-later',['x-url','x-id','x-password']);}
+  if(d.igUrl==='【後で回答】'){document.getElementById('ig-later').checked=true;toggleLaterGroup('ig-later',['ig-url','ig-id','ig-password']);}
+  if(d.registerId==='【後で回答】'){document.getElementById('register-later').checked=true;toggleLaterGroup('register-later',['register-id','register-password']);}
+  if(d.cameraUrl==='【後で回答】'){document.getElementById('camera-later').checked=true;toggleLaterGroup('camera-later',['camera-url','camera-id','camera-password']);}
+  if(d.windLicenseBase64==='【不要】'){document.getElementById('wind-na').checked=true;toggleWindNA();}
+  // レジ種類
+  if(d.registerType&&d.registerType!=='【後で回答】'){
+    const known=['エアレジ','スマレジ','Uレジ'];
+    if(known.includes(d.registerType)){const r=document.querySelector(`input[name="register-type"][value="${d.registerType}"]`);if(r){r.checked=true;onRegisterChange();}}
+    else if(d.registerType.startsWith('その他：')){const r=document.querySelector('input[name="register-type"][value="other"]');if(r){r.checked=true;onRegisterChange();}document.getElementById('register-other-text').value=d.registerType.replace('その他：','');}
+  }
+  // ゲーム
+  if(d.games){
+    const sg=d.games.split('、');
+    document.querySelectorAll('input[name="games"]').forEach(cb=>{
+      if(cb.value==='other'){const og=sg.find(g=>g.startsWith('その他：'));if(og){cb.checked=true;document.getElementById('game-other-text').style.display='block';document.getElementById('game-other-text').value=og.replace('その他：','');}}
+      else if(sg.includes(cb.value)) cb.checked=true;
     });
-    // ゲーム種類復元
-    if (d.games) {
-      const savedGames = d.games.split('、');
-      document.querySelectorAll('input[name="games"]').forEach(cb => {
-        if (cb.value === 'other') {
-          const otherGame = savedGames.find(g => g.startsWith('その他：'));
-          if (otherGame) {
-            cb.checked = true;
-            document.getElementById('game-other-text').style.display = 'block';
-            document.getElementById('game-other-text').value = otherGame.replace('その他：', '');
-          }
-        } else if (savedGames.includes(cb.value)) {
-          cb.checked = true;
-        }
-      });
-    }
-    // 画像復元
-    if (d.imageBase64) {
-      imageBase64 = d.imageBase64;
-      imageFileName = d.imageFileName || '';
-      const preview = document.getElementById('upload-preview');
-      document.getElementById('preview-img').src = imageBase64;
-      preview.style.display = 'block';
-      document.getElementById('upload-filename').textContent = imageFileName;
-      document.getElementById('upload-area').classList.add('has-file');
-    }
-  } catch(e) {}
+  }
+  // 画像
+  if(d.imageBase64){
+    imageBase64=d.imageBase64; imageFileName=d.imageFileName||'';
+    document.getElementById('preview-img').src=imageBase64;
+    document.getElementById('upload-preview').style.display='block';
+    document.getElementById('upload-filename').textContent=imageFileName;
+    document.getElementById('upload-area').classList.add('has-file');
+  }
 }
 </script>
 </body>
