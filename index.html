@@ -333,6 +333,15 @@
     display: flex; align-items: center; justify-content: center;
   }
   .upload-count { font-size: 0.66rem; color: var(--gold); margin-top: 8px; }
+  /* アップ済みバッジ */
+  .uploaded-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding: 7px 14px;
+    background: rgba(201,168,76,0.08); border: 1px solid var(--gold-dim);
+    font-size: 0.7rem; color: var(--gold); letter-spacing: 0.06em;
+  }
+  .uploaded-badge .badge-icon { font-size: 0.9rem; }
+  .uploaded-note { font-size: 0.64rem; color: var(--text-muted); margin-top: 4px; }
 
   /* 書類アップロード */
   .doc-upload-area {
@@ -1621,10 +1630,35 @@ function restoreFields(d) {
     imageList = d.images;
     renderImagePreviews();
   } else if(d.imageBase64) {
-    // 旧形式からの移行
     imageList = [{ base64: d.imageBase64, fileName: d.imageFileName || 'image.jpg' }];
     renderImagePreviews();
   }
+  // GASからの復元時：アップ済みバッジ表示
+  if(d.imageUrls) {
+    const urls = d.imageUrls.split('\n').filter(u => u.trim());
+    if(urls.length > 0) showUploadedBadge('upload-area', `掲載画像 ${urls.length}枚 送信済み`, '再アップロードしない場合は空欄のままで構いません');
+  }
+  if(d.foodLicenseUrl && !d.foodLicenseUrl.startsWith('【')) {
+    showUploadedBadge('food-license-area', '飲食店営業許可証 送信済み', '再アップロードしない場合は空欄のままで構いません');
+  }
+  if(d.windLicenseUrl && !d.windLicenseUrl.startsWith('【')) {
+    showUploadedBadge('wind-license-area', '風営法許可証 送信済み', '再アップロードしない場合は空欄のままで構いません');
+  }
+}
+
+function showUploadedBadge(areaId, text, note) {
+  const area = document.getElementById(areaId);
+  if (!area) return;
+  // 既存バッジがあれば削除
+  area.parentNode.querySelectorAll('.uploaded-badge,.uploaded-note').forEach(el => el.remove());
+  const badge = document.createElement('div');
+  badge.className = 'uploaded-badge';
+  badge.innerHTML = `<span class="badge-icon">✓</span>${text}`;
+  const noteEl = document.createElement('div');
+  noteEl.className = 'uploaded-note';
+  noteEl.textContent = note;
+  area.insertAdjacentElement('afterend', noteEl);
+  area.insertAdjacentElement('afterend', badge);
 }
 </script>
 </body>
