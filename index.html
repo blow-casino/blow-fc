@@ -1434,8 +1434,9 @@ function gatherData() {
   const tL =document.getElementById('store-tel-later').checked;
   const bhL=document.getElementById('business-hours-later').checked;
   const cdL=document.getElementById('closed-days-later').checked;
-  const wNA=document.getElementById('wind-na').checked;
-  const fNA=document.getElementById('food-na').checked;
+  const wNA   =document.getElementById('wind-na').checked;
+  const wLater=document.getElementById('wind-later').checked;
+  const fNA   =document.getElementById('food-na').checked;
   const regType=document.querySelector('input[name="register-type"]:checked')?.value||'';
   const regLabel=regType==='other'?('その他：'+(document.getElementById('register-other-text').value.trim()||'')):regType;
   return {
