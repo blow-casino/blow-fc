@@ -703,14 +703,22 @@
       </div>
 
       <div class="field full">
-        <label>営業時間 <span class="req">*</span></label>
+        <label>営業時間 <span class="opt">任意</span></label>
         <input type="text" id="business-hours" placeholder="例：18:00〜25:00　※曜日別：平日18:00〜25:00 日曜15:00〜23:00">
-        <span class="error-msg">営業時間を入力してください</span>
+        <label class="later-check" style="margin-top:8px;">
+          <input type="checkbox" id="business-hours-later" onchange="toggleLater('business-hours-later','business-hours')">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">未定のため後で回答する</span>
+        </label>
       </div>
       <div class="field">
-        <label>定休日 <span class="req">*</span></label>
+        <label>定休日 <span class="opt">任意</span></label>
         <input type="text" id="closed-days" placeholder="例：定休日なし、年末年始のみ休業">
-        <span class="error-msg">定休日を入力してください</span>
+        <label class="later-check" style="margin-top:8px;">
+          <input type="checkbox" id="closed-days-later" onchange="toggleLater('closed-days-later','closed-days')">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">未定のため後で回答する</span>
+        </label>
       </div>
       <div class="field">
         <label>OPEN日 <span class="opt">任意</span></label>
@@ -773,7 +781,7 @@
     <div class="form-grid">
       <div class="field full">
         <label>飲食店営業許可証 <span class="opt">任意</span></label>
-        <div class="doc-upload-area" id="food-license-area" onclick="document.getElementById('food-license-input').click()">
+        <div class="doc-upload-area" id="food-license-area" onclick="foodLicenseClick(event)">
           <input type="file" id="food-license-input" accept="image/*,application/pdf" onchange="handleDocUpload(event,'food')">
           <div class="doc-icon">📄</div>
           <div class="doc-text">クリックしてファイルを選択</div>
@@ -781,6 +789,11 @@
           <div class="doc-filename" id="food-filename"></div>
           <button class="doc-remove" id="food-remove" onclick="removeDoc(event,'food')">✕ 削除</button>
         </div>
+        <label class="later-check" style="margin-top:8px;">
+          <input type="checkbox" id="food-na" onchange="toggleFoodNA()">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">未取得のため後で回答する</span>
+        </label>
       </div>
       <div class="field full">
         <label>風営法許可証 <span class="opt">任意</span></label>
@@ -796,6 +809,11 @@
           <input type="checkbox" id="wind-na" onchange="toggleWindNA()">
           <span class="later-check-box"></span>
           <span class="later-check-label">風営法許可は不要です</span>
+        </label>
+        <label class="later-check" style="margin-top:6px;">
+          <input type="checkbox" id="wind-later" onchange="toggleWindLater()">
+          <span class="later-check-box"></span>
+          <span class="later-check-label">未取得のため後で回答する</span>
         </label>
       </div>
     </div>
@@ -859,6 +877,16 @@
       <div class="field">
         <label>パスワード <span class="opt">任意</span></label>
         <input type="password" id="camera-password" placeholder="パスワードを入力" autocomplete="new-password">
+      </div>
+    </div>
+
+    <!-- Google アカウント -->
+    <div class="sub-section">店舗用 Google アカウント</div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Gmail アドレス <span class="opt">任意</span></label>
+        <input type="email" id="google-email" placeholder="例：blow.kitashinchi@gmail.com" autocomplete="off">
+        <span class="field-note">GBP（Google ビジネスプロフィール）の管理・更新に使用するアカウントです。Googleマップ上の店舗情報の編集権限に紐づきます。<br>店名が決まり次第、早めのご登録をお願いします。未登録の場合、Googleマップへの掲載が遅れます。</span>
       </div>
     </div>
 
@@ -1139,18 +1167,50 @@ function toggleLaterGroup(chkId, ids) {
 }
 
 // ══════════════════════
+// 飲食店営業許可証 未取得トグル
+// ══════════════════════
+function toggleFoodNA() {
+  const chk  = document.getElementById('food-na').checked;
+  const area = document.getElementById('food-license-area');
+  area.style.opacity       = chk ? '0.35' : '1';
+  area.style.pointerEvents = chk ? 'none'  : 'auto';
+  if (chk) { foodBase64 = '【未取得】'; foodFileName = '【未取得】'; }
+  else      { foodBase64 = ''; foodFileName = ''; }
+}
+function foodLicenseClick(e) {
+  if (!document.getElementById('food-na').checked)
+    document.getElementById('food-license-input').click();
+}
+
+// ══════════════════════
 // 風営法不要トグル
 // ══════════════════════
 function toggleWindNA() {
   const chk  = document.getElementById('wind-na').checked;
   const area = document.getElementById('wind-license-area');
+  if (chk) {
+    document.getElementById('wind-later').checked = false;
+    windBase64 = '【不要】'; windFileName = '【不要】';
+  } else {
+    windBase64 = ''; windFileName = '';
+  }
   area.style.opacity       = chk ? '0.35' : '1';
   area.style.pointerEvents = chk ? 'none'  : 'auto';
-  if (chk) { windBase64 = '【不要】'; windFileName = '【不要】'; }
-  else      { windBase64 = ''; windFileName = ''; }
+}
+function toggleWindLater() {
+  const chk  = document.getElementById('wind-later').checked;
+  const area = document.getElementById('wind-license-area');
+  if (chk) {
+    document.getElementById('wind-na').checked = false;
+    windBase64 = '【未取得】'; windFileName = '【未取得】';
+  } else {
+    windBase64 = ''; windFileName = '';
+  }
+  area.style.opacity       = chk ? '0.35' : '1';
+  area.style.pointerEvents = chk ? 'none'  : 'auto';
 }
 function windLicenseClick(e) {
-  if (!document.getElementById('wind-na').checked)
+  if (!document.getElementById('wind-na').checked && !document.getElementById('wind-later').checked)
     document.getElementById('wind-license-input').click();
 }
 
@@ -1291,7 +1351,7 @@ function validateStep(step) {
       : checkRequired([['company-name-2','運営会社名を入力してください']]);
   }
   if (step===2) {
-    ok = checkRequired([['store-name','店舗名を入力してください'],['store-zip','郵便番号を入力してください'],['store-address','店舗住所を入力してください'],['business-hours','営業時間を入力してください'],['closed-days','定休日を入力してください'],['inquiry-email','メールアドレスを入力してください']]);
+    ok = checkRequired([['store-name','店舗名を入力してください'],['store-zip','郵便番号を入力してください'],['store-address','店舗住所を入力してください'],['inquiry-email','メールアドレスを入力してください']]);
   }
   if (step===3) {
     const intro= document.getElementById('top-intro').value.trim();
@@ -1402,7 +1462,10 @@ function buildConfirmContent() {
   const rL =document.getElementById('register-later').checked;
   const cL =document.getElementById('camera-later').checked;
   const tL =document.getElementById('store-tel-later').checked;
+  const bhL=document.getElementById('business-hours-later').checked;
+  const cdL=document.getElementById('closed-days-later').checked;
   const wNA=document.getElementById('wind-na').checked;
+  const fNA=document.getElementById('food-na').checked;
   const regType=document.querySelector('input[name="register-type"]:checked')?.value||'';
   const regLabel=regType==='other'?('その他：'+(document.getElementById('register-other-text').value.trim()||'')):regType;
   const games=getCheckedGames();
@@ -1411,15 +1474,17 @@ function buildConfirmContent() {
   if(branch==='first') html+=buildTable([['運営会社名',v('company-name')],['法人番号',v('corporate-number')],['請求書送付先',v('invoice-email')],['会社郵便番号',v('company-zip')],['会社住所',v('company-address')],['会社電話番号',v('company-tel')],['担当者名',v('contact-name')],['会社HP',v('company-url')]]);
   else html+=buildTable([['運営会社名',v('company-name-2')]]);
   html+='<div class="confirm-section-title">店舗情報</div>';
-  html+=buildTable([['店舗名',v('store-name')],['店舗郵便番号',v('store-zip')],['店舗住所',v('store-address')],['店舗電話番号',tL?'【後で回答】':v('store-tel')],['営業時間',v('business-hours')],['定休日',v('closed-days')],['OPEN日',v('open-date')],['問い合わせ先',v('inquiry-email')]]);
+  html+=buildTable([['店舗名',v('store-name')],['店舗郵便番号',v('store-zip')],['店舗住所',v('store-address')],['店舗電話番号',tL?'【後で回答】':v('store-tel')],['営業時間',bhL?'【後で回答】':v('business-hours')],['定休日',cdL?'【後で回答】':v('closed-days')],['OPEN日',v('open-date')],['問い合わせ先',v('inquiry-email')]]);
   html+='<div class="confirm-section-title">SNS情報</div>';
   html+=buildTable([['X URL',xL?'【後で回答】':v('x-url')],['X ID',xL?'【後で回答】':v('x-id')],['X PW',xL?'【後で回答】':(v('x-password')?'••••••••':'')],['Instagram URL',igL?'【後で回答】':v('ig-url')],['Instagram ID',igL?'【後で回答】':v('ig-id')],['Instagram PW',igL?'【後で回答】':(v('ig-password')?'••••••••':'')]]);
   html+='<div class="confirm-section-title">営業許可証</div>';
-  html+=buildTable([['飲食店営業許可証',foodFileName||'未登録'],['風営法許可証',wNA?'【不要】':(windFileName||'未登録')]]);
+  html+=buildTable([['飲食店営業許可証',fNA?'【未取得・後で回答】':(foodFileName||'未登録')],['風営法許可証',wNA?'【不要】':wLater?'【未取得・後で回答】':(windFileName||'未登録')]]);
   html+='<div class="confirm-section-title">レジ情報</div>';
   html+=buildTable([['レジ種類',rL?'【後で回答】':regLabel],['ログインID',rL?'【後で回答】':v('register-id')],['パスワード',rL?'【後で回答】':(v('register-password')?'••••••••':'')]]);
   html+='<div class="confirm-section-title">監視カメラ情報</div>';
   html+=buildTable([['管理画面URL',cL?'【後で回答】':v('camera-url')],['ログインID',cL?'【後で回答】':v('camera-id')],['パスワード',cL?'【後で回答】':(v('camera-password')?'••••••••':'')]]);
+  html+='<div class="confirm-section-title">店舗用 Google アカウント</div>';
+  html+=buildTable([['Gmail アドレス',v('google-email')||'未記入']]);
   const imgHtml=imageBase64?`<img src="${imageBase64}" class="confirm-image" alt="掲載画像"><br><span style="font-size:0.72rem;color:var(--text-muted);">${imageFileName}</span>`:'';
   html+='<div class="confirm-section-title">掲載情報</div>';
   html+=buildTable([['TOP紹介文',`<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
@@ -1441,7 +1506,10 @@ function gatherData() {
   const rL =document.getElementById('register-later').checked;
   const cL =document.getElementById('camera-later').checked;
   const tL =document.getElementById('store-tel-later').checked;
+  const bhL=document.getElementById('business-hours-later').checked;
+  const cdL=document.getElementById('closed-days-later').checked;
   const wNA=document.getElementById('wind-na').checked;
+  const fNA=document.getElementById('food-na').checked;
   const regType=document.querySelector('input[name="register-type"]:checked')?.value||'';
   const regLabel=regType==='other'?('その他：'+(document.getElementById('register-other-text').value.trim()||'')):regType;
   return {
@@ -1457,18 +1525,20 @@ function gatherData() {
     companyUrl:     branch==='first'?v('company-url')     :'',
     storeName:v('store-name'), storeZip:v('store-zip'), storeAddress:v('store-address'),
     storeTel:tL?'【後で回答】':v('store-tel'),
-    businessHours:v('business-hours'), closedDays:v('closed-days'),
+    businessHours:bhL?'【後で回答】':v('business-hours'),
+    closedDays:cdL?'【後で回答】':v('closed-days'),
     openDate:v('open-date'), inquiryEmail:v('inquiry-email'),
     xUrl:xL?'【後で回答】':v('x-url'), xId:xL?'【後で回答】':v('x-id'), xPassword:xL?'【後で回答】':v('x-password'),
     igUrl:igL?'【後で回答】':v('ig-url'), igId:igL?'【後で回答】':v('ig-id'), igPassword:igL?'【後で回答】':v('ig-password'),
-    foodLicenseBase64:foodBase64, foodLicenseFileName:foodFileName,
-    windLicenseBase64:wNA?'【不要】':windBase64, windLicenseFileName:wNA?'【不要】':windFileName,
+    foodLicenseBase64:fNA?'【未取得】':foodBase64, foodLicenseFileName:fNA?'【未取得】':foodFileName,
+    windLicenseBase64:wNA?'【不要】':wLater?'【未取得】':windBase64, windLicenseFileName:wNA?'【不要】':wLater?'【未取得】':windFileName,
     registerType:rL?'【後で回答】':regLabel,
     registerId:rL?'【後で回答】':v('register-id'),
     registerPassword:rL?'【後で回答】':v('register-password'),
     cameraUrl:cL?'【後で回答】':v('camera-url'),
     cameraId:cL?'【後で回答】':v('camera-id'),
     cameraPassword:cL?'【後で回答】':v('camera-password'),
+    googleEmail:v('google-email'),
     topIntro:v('top-intro'),
     games:getCheckedGames().join('、'),
     imageBase64, imageFileName,
@@ -1523,6 +1593,7 @@ function restoreFields(d) {
     'ig-url':d.igUrl,'ig-id':d.igId,
     'camera-url':d.cameraUrl,'camera-id':d.cameraId,
     'register-id':d.registerId,
+    'google-email':d.googleEmail,
     'top-intro': d.topIntro || '',
     'remarks':d.remarks,
   };
@@ -1533,11 +1604,15 @@ function restoreFields(d) {
   // 後で回答フラグ
   if(d.storeTel==='【後で回答】'){document.getElementById('store-tel-later').checked=true;toggleLater('store-tel-later','store-tel');}
   else if(d.storeTel){const e=document.getElementById('store-tel');if(e)e.value=d.storeTel;}
+  if(d.businessHours==='【後で回答】'){document.getElementById('business-hours-later').checked=true;toggleLater('business-hours-later','business-hours');}
+  if(d.closedDays==='【後で回答】'){document.getElementById('closed-days-later').checked=true;toggleLater('closed-days-later','closed-days');}
+  if(d.foodLicenseBase64==='【未取得】'){document.getElementById('food-na').checked=true;toggleFoodNA();}
   if(d.xUrl==='【後で回答】'){document.getElementById('x-later').checked=true;toggleLaterGroup('x-later',['x-url','x-id','x-password']);}
   if(d.igUrl==='【後で回答】'){document.getElementById('ig-later').checked=true;toggleLaterGroup('ig-later',['ig-url','ig-id','ig-password']);}
   if(d.registerId==='【後で回答】'){document.getElementById('register-later').checked=true;toggleLaterGroup('register-later',['register-id','register-password']);}
   if(d.cameraUrl==='【後で回答】'){document.getElementById('camera-later').checked=true;toggleLaterGroup('camera-later',['camera-url','camera-id','camera-password']);}
   if(d.windLicenseBase64==='【不要】'){document.getElementById('wind-na').checked=true;toggleWindNA();}
+  else if(d.windLicenseBase64==='【未取得】'){document.getElementById('wind-later').checked=true;toggleWindLater();}
   // レジ種類
   if(d.registerType&&d.registerType!=='【後で回答】'){
     const known=['エアレジ','スマレジ','Uレジ'];
