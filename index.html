@@ -1476,11 +1476,23 @@ function buildConfirmContent() {
   html+='<div class="confirm-section-title">店舗用 Google アカウント</div>';
   html+=buildTable([['Gmail アドレス',v('google-email')||'未記入']]);
   const am = document.getElementById('top-intro-ai').checked;
+  let amLabel = '【エリアマネージャーに任せる】';
+  if (am) {
+    let interior = document.querySelector('input[name="interior"]:checked')?.value || '';
+    if (interior === 'その他') interior = document.getElementById('interior-other-text').value.trim() || 'その他';
+    const area = document.getElementById('ai-area').value.trim();
+    const size = document.getElementById('ai-size').value.trim();
+    const parts = [];
+    if (interior) parts.push('内装：' + interior);
+    if (area)     parts.push('エリア：' + area);
+    if (size)     parts.push('広さ：' + size);
+    if (parts.length) amLabel += '<br><span style="font-size:0.76rem;color:var(--text-muted);">★ ' + parts.join('　') + '</span>';
+  }
   const imgHtml = imageList.length > 0
     ? imageList.map(img => `<img src="${img.base64}" class="confirm-image" alt="${img.fileName}" style="margin:2px;"> <span style="font-size:0.66rem;color:var(--text-muted);">${img.fileName}</span>`).join('<br>')
     : '';
   html+='<div class="confirm-section-title">掲載情報</div>';
-  html+=buildTable([['TOP紹介文', am ? '【エリアマネージャーに任せる】' : `<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
+  html+=buildTable([['TOP紹介文', am ? amLabel : `<span style="font-size:0.8rem;line-height:1.8;">${escHtml(v('top-intro'))}</span>`],['掲載画像',imgHtml||'<span style="color:var(--text-muted);font-size:0.78rem;">未登録</span>'],['ゲーム種類',games.length?games.join('、'):'<span style="color:var(--text-muted);">未選択</span>']],true);
   document.getElementById('confirm-content').innerHTML=html;
 }
 function buildTable(rows,raw=false) {
@@ -1533,7 +1545,18 @@ function gatherData() {
     cameraId:cL?'【後で回答】':v('camera-id'),
     cameraPassword:cL?'【後で回答】':v('camera-password'),
     googleEmail:v('google-email'),
-    topIntro:document.getElementById('top-intro-ai').checked ? '【エリアマネージャーに任せる】' : v('top-intro'),
+    topIntro: (() => {
+      if (!document.getElementById('top-intro-ai').checked) return v('top-intro');
+      let interior = document.querySelector('input[name="interior"]:checked')?.value || '';
+      if (interior === 'その他') interior = document.getElementById('interior-other-text').value.trim() || 'その他';
+      const area = document.getElementById('ai-area').value.trim();
+      const size = document.getElementById('ai-size').value.trim();
+      const parts = [];
+      if (interior) parts.push('内装=' + interior);
+      if (area)     parts.push('エリア=' + area);
+      if (size)     parts.push('広さ=' + size);
+      return '【エリアマネージャーに任せる】' + (parts.length ? '　★エリマネ資料：' + parts.join(' / ') : '');
+    })(),
     games:getCheckedGames().join('、'),
     images: imageList.map(img => ({ base64: img.base64, fileName: img.fileName })),
     // 後方互換のため先頭1枚もセット
@@ -1591,7 +1614,7 @@ function restoreFields(d) {
     'camera-url':d.cameraUrl,'camera-id':d.cameraId,
     'register-id':d.registerId,
     'google-email':d.googleEmail,
-    'top-intro': (d.topIntro === '【エリアマネージャーに任せる】') ? '' : (d.topIntro || ''),
+    'top-intro': (d.topIntro && d.topIntro.startsWith('【エリアマネージャーに任せる】')) ? '' : (d.topIntro || ''),
     'remarks':d.remarks,
   };
   Object.entries(map).forEach(([id,val])=>{
@@ -1608,7 +1631,31 @@ function restoreFields(d) {
   if(d.igUrl==='【後で回答】'){document.getElementById('ig-later').checked=true;toggleLaterGroup('ig-later',['ig-url','ig-id','ig-password']);}
   if(d.registerId==='【後で回答】'){document.getElementById('register-later').checked=true;toggleLaterGroup('register-later',['register-id','register-password']);}
   if(d.cameraUrl==='【後で回答】'){document.getElementById('camera-later').checked=true;toggleLaterGroup('camera-later',['camera-url','camera-id','camera-password']);}
-  if(d.topIntro==='【エリアマネージャーに任せる】'){document.getElementById('top-intro-ai').checked=true;toggleAIPanel();}
+  if(d.topIntro && d.topIntro.startsWith('【エリアマネージャーに任せる】')){
+    document.getElementById('top-intro-ai').checked=true;
+    toggleAIPanel();
+    // エリマネ資料をパースして復元
+    const m = d.topIntro.match(/★エリマネ資料：(.+)/);
+    if(m) {
+      m[1].split(' / ').forEach(part => {
+        const [key, val] = part.split('=');
+        if(key==='内装' && val) {
+          const known=['ラグジュアリー','モダン','カジュアル','クラシック','スポーティ'];
+          if(known.includes(val)) {
+            const r=document.querySelector(`input[name="interior"][value="${val}"]`);
+            if(r) r.checked=true;
+          } else {
+            const r=document.querySelector('input[name="interior"][value="その他"]');
+            if(r) r.checked=true;
+            document.getElementById('interior-other-text').value=val;
+            document.getElementById('interior-other-text').style.display='block';
+          }
+        }
+        if(key==='エリア' && val) document.getElementById('ai-area').value=val;
+        if(key==='広さ'  && val) document.getElementById('ai-size').value=val;
+      });
+    }
+  }
   if(d.windLicenseBase64==='【不要】'){document.getElementById('wind-na').checked=true;toggleWindNA();}
   else if(d.windLicenseBase64==='【未取得】'){document.getElementById('wind-later').checked=true;toggleWindLater();}
   // レジ種類
